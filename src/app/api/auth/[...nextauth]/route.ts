@@ -38,21 +38,24 @@ export const authOptions: AuthOptions = {
                     }
                 });
 
-                if(!user || !user?.hashedPassword) throw new Error('Invalid Credentials');
+                if(!user || !user?.hashedPassword) {
+                    throw new Error('Invalid Credentials');
+                }
                
                 const isCorrectPassword = await bcrypt.compare(credentials.password, user.hashedPassword);
                 
-                if (!isCorrectPassword) throw new Error('Invalid Credentials');
+                if (!isCorrectPassword) {
+                    throw new Error('Invalid Credentials');
+                }
 
                 return user;
             }
-
-
         })
     ],
     debug: process.env.NODE_ENV ==='development',
     session: { strategy: "jwt" },
-    secret: process.env.NEXTAUTH_SECRET
+    secret: process.env.NEXTAUTH_SECRET,
+    
 }
 
 const handler = NextAuth(authOptions);
