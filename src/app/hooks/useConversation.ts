@@ -6,9 +6,12 @@ const useConversation = () =>{
 
     const conversationId = useMemo(() => {
         if(!params?.conversationId) {
+            console.log(params)
             return ''
+            
         }
 
+        console.log(params)
         return params.conversationId as string;
     },[params?.conversationId])
 

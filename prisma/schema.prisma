@@ -1,3 +1,4 @@
+
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
@@ -60,8 +61,8 @@ model Conversation {
   messagesIds String [] @db.ObjectId
   messages Message[]
 
-  userId String[] @db.ObjectId
-  users User[] @relation(fields: [userId], references: [id])
+  userIds String[] @db.ObjectId
+  users User[] @relation(fields: [userIds], references: [id])
 }
 
 
@@ -82,5 +83,4 @@ model Message {
   sender User @relation(fields: [senderId], references: [id])
 
 }
-
 

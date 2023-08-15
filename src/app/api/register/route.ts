@@ -12,6 +12,13 @@ try {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
+
+    const verifyUser = await prisma.user.findUnique({
+        where: {email}
+    })
+
+    if(verifyUser) return new NextResponse('This email already registered.', { status: 400 })
+
     const user = await prisma.user.create({
         data: {
             email , name, hashedPassword
