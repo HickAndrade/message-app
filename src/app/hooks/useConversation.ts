@@ -5,22 +5,22 @@ const useConversation = () =>{
     const params = useParams();
 
     const conversationId = useMemo(() => {
-        if(!params?.conversationId) {
-            console.log(params)
-            return ''
-            
+        if(!params?.conversationId) { 
+            return ''       
         }
 
-        console.log(params)
+        
         return params.conversationId as string;
     },[params?.conversationId])
 
     const isOpen = useMemo(() => !!conversationId, [conversationId])
 
+    
+
     return useMemo(() => ({
         isOpen,
         conversationId
-     }),[])
+     }),[isOpen, conversationId])
 }
 
 export default useConversation;

@@ -9,7 +9,7 @@ import AuthContext from './context/AuthContext'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Messenger Clone',
+  title: 'Message App',
   description: 'Lets....',
 }
 

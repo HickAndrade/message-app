@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import clsx from 'clsx';
 
@@ -7,8 +7,6 @@ import EmptyState from '../components/EmptyState';
 
 const Home = () => {
     const { isOpen }= useConversation();
-
-    
 
     return(
         <div className={clsx(`

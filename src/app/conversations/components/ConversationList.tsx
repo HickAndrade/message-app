@@ -7,6 +7,8 @@ import { FullConversationType } from "@/app/types";
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { MdOutlineGroupAdd } from "react-icons/md"
+import ConversationBox from "./ConversationBox";
 
 interface ConversationListProps{
     initialItems: FullConversationType[]
@@ -20,7 +22,37 @@ const ConversationList = ({ initialItems }: ConversationListProps) => {
   return (
    <aside className={clsx(`
     fixed
-   `)}>
+    inset-y-0
+    pb-20
+    lg:pb-0
+    lg:left-20
+    lg:w-80
+    lg:block
+    overflow-y-auto
+    border-r
+    border-gray-200
+    block
+    w-full`, isOpen ?  'hidden' : 'block w-full left-0')}>
+       <div className="px-5">
+        <div className="flex justify-between mb-4 pt-4">
+        <div className="text-2xl font-bold text-neural-800">Mensagens</div>
+        <div className="
+        rounded-full
+        p-2
+        bg-gray-200
+        text-gray-600
+        cursor-pointer
+        hover:opacity-75
+        transition
+         ">
+            <MdOutlineGroupAdd size={20}/>
+        </div>
+        </div>
+        {
+        items.map((item) =>(
+            <ConversationBox key={item.id} data={item} selected={conversationId === item.id}/>
+        ))}
+       </div>
     </aside>
   )
 }
