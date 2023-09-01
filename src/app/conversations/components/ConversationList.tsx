@@ -7,19 +7,27 @@ import { FullConversationType } from "@/app/types";
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { MdOutlineGroupAdd } from "react-icons/md"
+import { MdOutlineGroupAdd } from "react-icons/md";
 import ConversationBox from "./ConversationBox";
+import GroupChatModal from "./GroupChatModal";
+import { User } from "@prisma/client";
 
 interface ConversationListProps{
-    initialItems: FullConversationType[]
+    initialItems: FullConversationType[],
+    users:User[]
 }
 
-const ConversationList = ({ initialItems }: ConversationListProps) => {
+const ConversationList = ({ initialItems, users }: ConversationListProps) => {
     const [items, setItems] = useState(initialItems);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     const router = useRouter();
     const { conversationId, isOpen } = useConversation();
 
   return (
+   <>
+   <GroupChatModal users={users} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+
    <aside className={clsx(`
     fixed
     inset-y-0
@@ -31,12 +39,13 @@ const ConversationList = ({ initialItems }: ConversationListProps) => {
     overflow-y-auto
     border-r
     border-gray-200
-    block
     w-full`, isOpen ?  'hidden' : 'block w-full left-0')}>
        <div className="px-5">
         <div className="flex justify-between mb-4 pt-4">
         <div className="text-2xl font-bold text-neural-800">Mensagens</div>
-        <div className="
+        <div 
+        onClick={() => setIsModalOpen(true)}
+        className="
         rounded-full
         p-2
         bg-gray-200
@@ -54,6 +63,7 @@ const ConversationList = ({ initialItems }: ConversationListProps) => {
         ))}
        </div>
     </aside>
+   </>
   )
 }
 

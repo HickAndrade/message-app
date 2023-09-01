@@ -1,13 +1,14 @@
 "use client";
 
 import Avatar from "@/app/components/Avatar";
-import Modal from "@/app/components/Modal";
 import useOtherUser from "@/app/hooks/useOtherUser";
 import { Dialog, Transition } from "@headlessui/react";
 import { Conversation, User } from "@prisma/client";
 import { format } from "date-fns";
 import { useMemo, Fragment, useState } from "react";
 import { IoClose, IoTrash } from "react-icons/io5";
+import ConfirmModal from "./ConfirmModal";
+import AvatarGroup from "@/app/components/AvatarGroup";
 
 
 interface ProfileDrawerProps {
@@ -23,7 +24,7 @@ const ProfileDrawer = ({
   isOpen , data, onClose
 }:ProfileDrawerProps) => {
   const otherUser = useOtherUser(data);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const joinedDate = useMemo(() => {
     return format(new Date(otherUser.createdAt), 'PP');
@@ -43,11 +44,11 @@ const ProfileDrawer = ({
 
   return (
     <>
-       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-      <div>
-          <p>Hello Modal</p>
-      </div>
-    </Modal>
+      <ConfirmModal 
+        isOpen={confirmOpen} 
+        onClose={() => setConfirmOpen(false)}
+      />
+      
     <Transition.Root show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>
         <Transition.Child
@@ -141,7 +142,12 @@ const ProfileDrawer = ({
                   items-center
                   ">
                     <div className="mb-2">
-                      <Avatar  user={otherUser}/>
+                      {data.isGroup ? (
+                        <AvatarGroup users={data.users} />
+                      ):(
+                        <Avatar  user={otherUser}/>
+                      )}
+                      
                     </div>
                     <div>
                       {title}
@@ -151,7 +157,7 @@ const ProfileDrawer = ({
                     </div>
                     <div className="flex gap-10 my-8">
                       <div 
-                      onClick={() => setIsModalOpen(true)}
+                      onClick={() => setConfirmOpen(true)}
                       className="
                       flex 
                       flex-col 
@@ -191,6 +197,27 @@ const ProfileDrawer = ({
                       sm:px-6
                       "
                       >
+                        {data.isGroup && (
+                          <div>
+                              <dt className="
+                              text-sm
+                              font-medium
+                              text-gray-500
+                              sm:w-40
+                              sm:flex-shrink-0
+                              ">
+                                Emails
+                              </dt>
+                              <dd className="
+                                mt-1
+                                text-sm
+                                text-gray-900
+                                sm:col-span-2
+                              ">
+                                {data.users.map((user) => user.email).join(', ')}
+                              </dd>
+                          </div>
+                        )}
                         {!data.isGroup && (
                           <div>
                             <dt className="

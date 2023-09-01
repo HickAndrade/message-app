@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useCallback } from "react";
 import axios from "axios";
 import Avatar from "@/app/components/Avatar";
+import LoadingModal from "@/app/components/loadingModal";
 
 interface UserBoxProps {
     data: User;
@@ -29,6 +30,10 @@ const UserBox = ({ data }: UserBoxProps) => {
     },[data, router]) 
     
   return (
+    <>
+        {isLoading && ( 
+             <LoadingModal />
+        )}
     <div onClick={handleClick}
     className="
     w-full 
@@ -54,6 +59,7 @@ const UserBox = ({ data }: UserBoxProps) => {
             </div>
         </div>
     </div>
+    </>
   )
 }
 

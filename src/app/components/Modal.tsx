@@ -102,6 +102,7 @@ const Modal = ({ isOpen, children, onClose }: ModalProps) => {
                                 <IoClose size={20} />
                             </button>
                         </div>
+                        {children}
                     </Dialog.Panel>
                 </Transition.Child>
             </div>
