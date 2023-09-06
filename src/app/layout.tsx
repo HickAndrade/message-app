@@ -5,6 +5,7 @@ import { ReactNode } from 'react'
 
 import ToasterContent from './context/ToasterContext'
 import AuthContext from './context/AuthContext'
+import ActiveStatus from './components/ActiveStatus'
  
 const inter = Inter({ subsets: ['latin'] })
 
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: { children: ReactNode
       <body className={inter.className}>
         <AuthContext>
           <ToasterContent />
+          <ActiveStatus />
           {children}
         </AuthContext>
       </body>

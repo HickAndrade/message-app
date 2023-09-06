@@ -1,6 +1,5 @@
 "use client";
 
-import getMessages from "@/app/actions/getMessages";
 import Avatar from "@/app/components/Avatar";
 import { FullMessageType } from "@/app/types";
 import clsx from "clsx";
@@ -22,7 +21,7 @@ const MessageBox = ({ isLast, data }:MessageBoxProps) => {
 
     const isOwn = session?.data?.user?.email === data?.sender?.email;  
     
-    const seenList =(data.seen ||[])
+    const seenList = (data.seen || [])
     .filter((user) => user.email !== data?.sender?.email)
     .map((user) => user.name)
     .join(', ');
