@@ -1,34 +1,44 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Message App
+![presentation project](https://github.com/HickAndrade/message-app/assets/47418499/1603cf2b-082e-4a92-b966-fde39dabdf1e)
 
-## Getting Started
+Message App é uma aplicação web com troca de mensagens em tempo real, autenticação e  chats de grupo, utilizando algumas das melhores ferramentas de desenvolvimento.
 
-First, run the development server:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+<div align="center">
+  <h4>Tecnologias Utilizadas</h4>
+  <img align="center" alt="stack-icons" src="https://skillicons.dev/icons?i=next,ts,react,tailwind,prisma,nodejs,figma">
+  <p>E mais algumas...</p>
+</div>
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Visão Geral
 
-## Learn More
+A ideia deste projeto é envolver as tecnologias e bibliotecas que geralmente estão em um projeto fullstack, explorando o next na sua versão mais atual, trazendo da melhor forma a proposta BFF(Back-for-front) e suas funcionalidades de rendenização entre client e server-side.
 
-To learn more about Next.js, take a look at the following resources:
+## Funcionalidades
+* Upload de arquivos e imagens usando o Cloudinary CDN.
+* Autenticação com github, google e credenciais com NextAuth.
+* Manipulação de erros do servidor com react-toast.
+* Chats de grupo e one-to-one em tempo real com Pusher.
+* Customização da imagem do perfil.
+* React-hook-form para manipular e validar os forms no client.
+* Online/Offline status.
+* Route Handlers da nova versão do Next.
+* Animações, responsividade e efeitos de transição com TailwindCSS.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Como Executar
+Execute `npm install` para instalar as dependências.</br>
+`npm run dev` para iniciar o ambiente de desenvolvimento.</br>
+Acesse `http://localhost:3000`.</br>
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+> Para configurar as **variáveis de ambiente** segue o arquivo `.env.example` na raiz do projeto.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Desenvolvedor
+
+Este projeto foi realizado por **Henrique Andrade** como parte do portifolio.
+
+[![image](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/henrique-andrade-551842180/)
+[![image](https://img.shields.io/badge/Microsoft_Outlook-0078D4?style=for-the-badge&logo=microsoft-outlook&logoColor=white)](mailto:henriqandrade@outlook.com) 

@@ -61,9 +61,9 @@ const Form = () => {
             <button className="
             rounded-full
             p-2
-            bg-sky-500
+            bg-gray-900
             cursor-pointer
-            hover:bg-sky-600
+            hover:bg-gray-600
             transition
             "type="submit">
                 <HiPaperAirplane className="
