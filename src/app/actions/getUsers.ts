@@ -9,12 +9,10 @@ const getUsers = async () => {
     }
 
     try {
-      
-
         const users = await prisma.user.findMany({
             orderBy: {
                 createdAt: 'desc'
-            },
+            },  
             where: {
                 NOT: {
                     email: session.user.email
@@ -24,7 +22,7 @@ const getUsers = async () => {
  
         return users;
 
-    } catch (error) {
+    } catch (error: any) {
         return [];
     }
 }
