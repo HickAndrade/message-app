@@ -12,7 +12,7 @@ import ConversationBox from "./ConversationBox";
 import GroupChatModal from "./GroupChatModal";
 import { User } from "@prisma/client";
 import { useSession } from "next-auth/react";
-import { pusherClient } from "@/app/libs/pusher";
+import { getPusherClient } from "@/app/libs/pusher";
 import { find } from "lodash";
 
 
@@ -38,6 +38,7 @@ const ConversationList = ({ initialItems, users }: ConversationListProps) => {
       if(!pusherKey){
         return;
       }
+      const pusherClient = getPusherClient();
       pusherClient.subscribe(pusherKey);
 
       const newHandler = (conversation: FullConversationType) => {

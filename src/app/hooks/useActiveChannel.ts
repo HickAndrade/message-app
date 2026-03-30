@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import useActiveList from "./useActiveList";
 import { Channel, Members } from "pusher-js";
-import { pusherClient } from "../libs/pusher";
+import { getPusherClient } from "../libs/pusher";
 
 const useActiveChannel = () => {
     const { set, add, remove } = useActiveList();
     const [activeChannel, setActiveChannel] = useState<Channel | null>(null);
 
     useEffect(() => {
+        const pusherClient = getPusherClient();
         let channel = activeChannel;
 
         if(!channel){

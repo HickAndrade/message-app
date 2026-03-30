@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 
-import { pusherServer } from "@/app/libs/pusher";
+import { getPusherServer } from "@/app/libs/pusher";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 //https://pusher.com/docs/channels/server_api/authorizing-users/
@@ -19,6 +19,7 @@ export default async function handler(request: NextApiRequest, response:NextApiR
         user_id: session.user.email
     }
 
+    const pusherServer = getPusherServer();
     const authResponse = pusherServer.authorizeChannel(socketId, channel, data);
 
     return response.send(authResponse);

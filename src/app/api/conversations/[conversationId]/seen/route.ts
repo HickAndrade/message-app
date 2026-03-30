@@ -2,19 +2,15 @@ import { Message } from "@prisma/client"
 import prisma from '@/app/libs/prismadb';
 import { NextResponse } from "next/server";
 import getCurrentUser from "@/app/actions/getCurrentUser";
-import { pusherServer } from "@/app/libs/pusher";
-
-interface IParams {
-    conversationId?:string;
-}
-
+import { getPusherServer } from "@/app/libs/pusher";
 
 export async function POST(
     request: Request, 
-    { params }: {params: IParams}){
+    { params }: { params: Promise<{ conversationId: string }> }){
     try {
         const currentUser = await getCurrentUser();
-        const { conversationId } = params;
+        const { conversationId } = await params;
+        const pusherServer = getPusherServer();
 
         if (!currentUser?.id || !currentUser?.email) {
             return new NextResponse('Unauthorized', { status: 401 })
