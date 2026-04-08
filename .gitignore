@@ -4,3 +4,4 @@ web/node_modules
 api/dist
 web/.next
 *.log
+.env

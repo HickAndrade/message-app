@@ -1,0 +1,49 @@
+import dotenv from "dotenv";
+import { z } from "zod";
+
+dotenv.config();
+
+function parseOrigins(origins: string | undefined) {
+    if (!origins) {
+        return [];
+    }
+
+    return origins
+        .split(",")
+        .map((origin) => origin.trim())
+        .filter(Boolean);
+}
+
+const envSchema = z.object({
+    NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+    HOST: z.string().trim().min(1).default("0.0.0.0"),
+    PORT: z.coerce.number().int().positive().default(4000),
+    CORS_ORIGIN: z.string().optional().transform(parseOrigins),
+    DATABASE_URL: z.string().trim().min(1, "DATABASE_URL is required"),
+    PUSHER_APP_ID: z.string().trim().min(1, "PUSHER_APP_ID is required"),
+    PUSHER_APP_KEY: z.string().trim().min(1, "PUSHER_APP_KEY is required"),
+    PUSHER_SECRET: z.string().trim().min(1, "PUSHER_SECRET is required"),
+    PUSHER_CLUSTER: z.string().trim().min(1).default("sa1")
+});
+
+const parsedEnv = envSchema.safeParse({
+    NODE_ENV: process.env.NODE_ENV,
+    HOST: process.env.HOST,
+    PORT: process.env.PORT,
+    CORS_ORIGIN: process.env.CORS_ORIGIN,
+    DATABASE_URL: process.env.DATABASE_URL,
+    PUSHER_APP_ID: process.env.PUSHER_APP_ID,
+    PUSHER_APP_KEY: process.env.PUSHER_APP_KEY ?? process.env.NEXT_PUBLIC_PUSHER_APP_KEY,
+    PUSHER_SECRET: process.env.PUSHER_SECRET,
+    PUSHER_CLUSTER: process.env.PUSHER_CLUSTER
+});
+
+if (!parsedEnv.success) {
+    const details = parsedEnv.error.issues
+        .map((issue) => `${issue.path.join(".") || "env"}: ${issue.message}`)
+        .join("\n");
+
+    throw new Error(`Invalid environment configuration:\n${details}`);
+}
+
+export const env = parsedEnv.data;
