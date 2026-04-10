@@ -38,8 +38,9 @@ const ConversationList = ({ initialItems, users }: ConversationListProps) => {
       if(!pusherKey){
         return;
       }
+
       const pusherClient = getPusherClient();
-      pusherClient.subscribe(pusherKey);
+      const channel = pusherClient.subscribe(pusherKey);
 
       const newHandler = (conversation: FullConversationType) => {
         setItems((current) => {
@@ -69,18 +70,18 @@ const ConversationList = ({ initialItems, users }: ConversationListProps) => {
         }
       }
 
-      pusherClient.bind('conversation:remove',removeHandler);
-      pusherClient.bind('conversation:new', newHandler);
-      pusherClient.bind('conversation:update', updateHandler);
+      channel.bind('conversation:remove', removeHandler);
+      channel.bind('conversation:new', newHandler);
+      channel.bind('conversation:update', updateHandler);
 
       return  () =>{
+        channel.unbind('conversation:new', newHandler);
+        channel.unbind('conversation:update', updateHandler);
+        channel.unbind('conversation:remove', removeHandler);
         pusherClient.unsubscribe(pusherKey);
-        pusherClient.unbind('conversation:new', newHandler);
-        pusherClient.unbind('conversation:update', updateHandler);
-        pusherClient.unbind('conversation:remove',removeHandler);
-      }
+      };
 
-    }, [pusherKey, conversationId, router])
+    }, [pusherKey, conversationId, router]);
 
   return (
    <>

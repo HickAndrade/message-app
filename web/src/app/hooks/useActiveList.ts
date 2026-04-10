@@ -10,7 +10,9 @@ interface ActiveListStore {
 const useActiveList = create<ActiveListStore>((set) => ({
     members: [],
     add: (id) => set((state) => ({
-        members: [...state.members, id]
+        members: state.members.includes(id)
+            ? state.members
+            : [...state.members, id]
     })),
     remove: (id) => set((state) => ({
         members: state.members.filter((memberId) => memberId !== id)

@@ -20,10 +20,8 @@ const Body = ({ initialMessages }: BodyProps) => {
 
   useEffect(() => {
     const pusherClient = getPusherClient();
-    pusherClient.subscribe(conversationId);
+    const channel = pusherClient.subscribe(conversationId);
     bottomRef?.current?.scrollIntoView();
-
-
 
     const messageHandler = (message: FullMessageType) =>{
       setMessages((current) => {
@@ -46,14 +44,14 @@ const Body = ({ initialMessages }: BodyProps) => {
       }))
     }
 
-    pusherClient.bind('messages:new', messageHandler);
-    pusherClient.bind('message:update', updateMessageHandler);
+    channel.bind('messages:new', messageHandler);
+    channel.bind('message:update', updateMessageHandler);
     
 
     return () => {
+      channel.unbind('messages:new', messageHandler);
+      channel.unbind('message:update', updateMessageHandler);
       pusherClient.unsubscribe(conversationId);
-      pusherClient.unbind('messages:new', messageHandler);
-      pusherClient.unbind('message:update', updateMessageHandler);
     }
 
   }, [conversationId]);
