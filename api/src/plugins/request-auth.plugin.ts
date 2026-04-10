@@ -1,10 +1,10 @@
 import cookie from "@fastify/cookie";
 import jwt from "@fastify/jwt";
-import type { User } from "@prisma/client";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
 
 import { env } from "../config/env";
+import type { StoredUser } from "../modules/users/users.service";
 
 type AuthTokenPayload = {
     email: string;
@@ -19,7 +19,7 @@ const COOKIE_BASE_OPTIONS = {
     secure: env.NODE_ENV === "production"
 };
 
-function buildTokenPayload(user: User): AuthTokenPayload {
+function buildTokenPayload(user: StoredUser): AuthTokenPayload {
     return {
         sub: user.id,
         email: user.email,
@@ -49,6 +49,14 @@ export async function authenticateRequest(request: FastifyRequest, reply: Fastif
     request.currentUser = currentUser;
 }
 
+export function getCurrentUser(request: FastifyRequest) {
+    if (!request.currentUser) {
+        throw new Error("Authenticated request missing currentUser");
+    }
+
+    return request.currentUser;
+}
+
 export default fp(async (app) => {
     await app.register(cookie);
     await app.register(jwt, {
@@ -62,8 +70,7 @@ export default fp(async (app) => {
         }
     });
 
-    app.decorate("authenticate", authenticateRequest);
-    app.decorate("setAuthCookie", async (reply: FastifyReply, user: User) => {
+    app.decorate("setAuthCookie", async (reply: FastifyReply, user: StoredUser) => {
         const token = await reply.jwtSign(buildTokenPayload(user));
 
         reply.setCookie(env.AUTH_COOKIE_NAME, token, COOKIE_BASE_OPTIONS);
@@ -85,12 +92,11 @@ declare module "@fastify/jwt" {
 
 declare module "fastify" {
     interface FastifyInstance {
-        authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
         clearAuthCookie: (reply: FastifyReply) => void;
-        setAuthCookie: (reply: FastifyReply, user: User) => Promise<void>;
+        setAuthCookie: (reply: FastifyReply, user: StoredUser) => Promise<void>;
     }
 
     interface FastifyRequest {
-        currentUser: User | null;
+        currentUser: StoredUser | null;
     }
 }

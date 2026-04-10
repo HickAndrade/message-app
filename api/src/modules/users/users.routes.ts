@@ -1,23 +1,27 @@
 import type { FastifyInstance, FastifyPluginOptions } from "fastify";
 
-import { authenticateRequest } from "../../plugins/request-auth.plugin";
+import { authenticateRequest, getCurrentUser } from "../../plugins/request-auth.plugin";
 import { validateBody } from "../../shared/middlewares/validate-body";
 import { type UpdateSettingsDTO, updateSettingsSchema } from "./users.schemas";
 import type { UsersService } from "./users.service";
+
+type UpdateSettingsRoute = {
+    Body: UpdateSettingsDTO;
+};
 
 export const usersRoutes = (usersService: UsersService) => async (
     app: FastifyInstance,
     _opts: FastifyPluginOptions
 ) => {
     app.get("/users/me", { preHandler: [authenticateRequest] }, async (request) => {
-        return usersService.toPublicUser(request.currentUser!);
+        return usersService.toPublicUser(getCurrentUser(request));
     });
 
     app.get("/users", { preHandler: [authenticateRequest] }, async (request) => {
-        return usersService.listUsers(request.currentUser!.email);
+        return usersService.listUsers(getCurrentUser(request).email);
     });
-    
-    app.post(
+
+    app.post<UpdateSettingsRoute>(
         "/settings",
         {
             preHandler: [
@@ -26,9 +30,11 @@ export const usersRoutes = (usersService: UsersService) => async (
             ]
         },
         async (request) => {
+            const currentUser = getCurrentUser(request);
+
             return usersService.updateSettings(
-                request.currentUser!.id,
-                request.body as UpdateSettingsDTO
+                currentUser.id,
+                request.body
             );
         }
     );

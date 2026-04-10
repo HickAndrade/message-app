@@ -1,14 +1,13 @@
-import type { User } from "@prisma/client";
-
 import { HttpError } from "../../shared/errors/http-error";
-import type { RealtimeService } from "../../plugins/realtime.plugin";
+import type { RealtimePublisher } from "../../plugins/realtime.plugin";
 import type { CreateConversationDTO } from "./conversations.schemas";
-import { ConversationsRepository } from "./repositories/conversations.repository";
+import type { ConversationsRepository } from "./repositories/conversations.repository";
+import type { StoredUser } from "../users/users.service";
 
 export class ConversationsService {
     constructor(
         private readonly repository: ConversationsRepository,
-        private readonly realtimeService: RealtimeService
+        private readonly realtimeService: RealtimePublisher
     ) {}
 
     async listForUser(userId: string) {
@@ -30,7 +29,7 @@ export class ConversationsService {
         return this.repository.listMessages(conversationId);
     }
 
-    async create(currentUser: User, data: CreateConversationDTO) {
+    async create(currentUser: StoredUser, data: CreateConversationDTO) {
         const isGroup = Boolean(data.isGroup);
         const userId = data.userId?.trim();
         const name = data.name?.trim();
@@ -62,7 +61,7 @@ export class ConversationsService {
         return newConversation;
     }
 
-    async remove(currentUser: User, conversationId: string) {
+    async remove(currentUser: StoredUser, conversationId: string) {
         const conversation = await this.getById(currentUser.id, conversationId);
         const deletedConversation = await this.repository.deleteForUser(conversationId, currentUser.id);
 
@@ -71,7 +70,7 @@ export class ConversationsService {
         return deletedConversation;
     }
 
-    async markSeen(currentUser: User, conversationId: string) {
+    async markSeen(currentUser: StoredUser, conversationId: string) {
         const conversation = await this.repository.findByIdWithMessagesForUser(conversationId, currentUser.id);
 
         if (!conversation) {

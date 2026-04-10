@@ -4,7 +4,23 @@ type ConversationMember = {
     value: string;
 };
 
-export class ConversationsRepository {
+export interface ConversationsRepository {
+    listForUser(userId: string): Promise<ConversationListItem>;
+    findByIdForUser(conversationId: string, userId: string): Promise<ConversationWithUsers | null>;
+    findByIdWithMessagesForUser(
+        conversationId: string,
+        userId: string
+    ): Promise<ConversationWithMessages | null>;
+    listMessages(conversationId: string): Promise<ConversationMessages>;
+    findDirectConversation(currentUserId: string, otherUserId: string): Promise<DirectConversation>;
+    createGroupConversation(name: string, currentUserId: string, members: ConversationMember[]): Promise<ConversationWithUsers>;
+    createDirectConversation(currentUserId: string, otherUserId: string): Promise<ConversationWithUsers>;
+    deleteForUser(conversationId: string, userId: string): Promise<DeletedConversation>;
+    markMessageSeen(messageId: string, userId: string): Promise<SeenMessage>;
+    attachMessage(conversationId: string, messageId: string): Promise<AttachedConversation>;
+}
+
+export class PrismaConversationsRepository implements ConversationsRepository {
     constructor(private readonly prisma: PrismaClient) {}
 
     async listForUser(userId: string) {
@@ -194,3 +210,14 @@ export class ConversationsRepository {
         });
     }
 }
+
+type ConversationListItem = Awaited<ReturnType<PrismaConversationsRepository["listForUser"]>>;
+type ConversationWithUsers = NonNullable<Awaited<ReturnType<PrismaConversationsRepository["findByIdForUser"]>>>;
+type ConversationWithMessages = NonNullable<
+    Awaited<ReturnType<PrismaConversationsRepository["findByIdWithMessagesForUser"]>>
+>;
+type ConversationMessages = Awaited<ReturnType<PrismaConversationsRepository["listMessages"]>>;
+type DirectConversation = Awaited<ReturnType<PrismaConversationsRepository["findDirectConversation"]>>;
+type DeletedConversation = Awaited<ReturnType<PrismaConversationsRepository["deleteForUser"]>>;
+type SeenMessage = Awaited<ReturnType<PrismaConversationsRepository["markMessageSeen"]>>;
+type AttachedConversation = Awaited<ReturnType<PrismaConversationsRepository["attachMessage"]>>;

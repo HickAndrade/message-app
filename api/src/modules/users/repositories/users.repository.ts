@@ -1,17 +1,16 @@
 import type { PrismaClient } from "@prisma/client";
 
-export interface CreateUserInput {
-    email: string;
-    hashedPassword: string;
-    name: string;
+import type { CreateUserInput, UpdateUserProfileInput } from "../users.types";
+
+export interface UsersRepository {
+    create(data: CreateUserInput): Promise<StoredUserRecord>;
+    findByEmail(email: string): Promise<StoredUserRecord | null>;
+    findById(id: string): Promise<StoredUserRecord | null>;
+    listExceptEmail(email: string): Promise<StoredUserRecord[]>;
+    updateProfile(userId: string, data: UpdateUserProfileInput): Promise<StoredUserRecord>;
 }
 
-export interface UpdateUserProfileInput {
-    image?: string;
-    name?: string;
-}
-
-export class UsersRepository {
+export class PrismaUsersRepository implements UsersRepository {
     constructor(private readonly prisma: PrismaClient) {}
 
     async create(data: CreateUserInput) {
@@ -58,3 +57,5 @@ export class UsersRepository {
         });
     }
 }
+
+export type StoredUserRecord = NonNullable<Awaited<ReturnType<PrismaUsersRepository["findById"]>>>;

@@ -1,15 +1,19 @@
 import type { FastifyInstance, FastifyPluginOptions } from "fastify";
 
-import { authenticateRequest } from "../../plugins/request-auth.plugin";
+import { authenticateRequest, getCurrentUser } from "../../plugins/request-auth.plugin";
 import { validateBody } from "../../shared/middlewares/validate-body";
 import { type SendMessageDTO, sendMessageSchema } from "./messages.schemas";
 import type { MessagesService } from "./messages.service";
+
+type SendMessageRoute = {
+    Body: SendMessageDTO;
+};
 
 export const messagesRoutes = (messagesService: MessagesService) => async (
     app: FastifyInstance,
     _opts: FastifyPluginOptions
 ) => {
-    app.post(
+    app.post<SendMessageRoute>(
         "/messages",
         {
             preHandler: [
@@ -19,8 +23,8 @@ export const messagesRoutes = (messagesService: MessagesService) => async (
         },
         async (request) => {
             return messagesService.create(
-                request.currentUser!,
-                request.body as SendMessageDTO
+                getCurrentUser(request),
+                request.body
             );
         }
     );

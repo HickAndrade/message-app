@@ -4,11 +4,24 @@ import Pusher from "pusher";
 
 import { env } from "../config/env";
 
-type RealtimeUser = {
+export type RealtimeUser = {
     email: string | null;
 };
 
-export class RealtimeService {
+export interface RealtimePublisher {
+    trigger(channel: string, eventName: string, payload: unknown): Promise<unknown>;
+    triggerToUsers(users: RealtimeUser[], eventName: string, payload: unknown): Promise<void>;
+}
+
+export interface RealtimeAuthorizer {
+    authorizeChannel(
+        socketId: string,
+        channel: string,
+        data: { user_id: string } & Record<string, unknown>
+    ): unknown;
+}
+
+export class RealtimeService implements RealtimePublisher, RealtimeAuthorizer {
     private server: PusherServer | null = null;
 
     private getServer() {

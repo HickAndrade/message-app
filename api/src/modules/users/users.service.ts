@@ -1,11 +1,10 @@
-import type { User } from "@prisma/client";
+import type { StoredUserRecord, UsersRepository } from "./repositories/users.repository";
+import type { CreateUserInput, UpdateUserProfileInput } from "./users.types";
 
-import type { CreateUserInput, UpdateUserProfileInput } from "./repositories/users.repository";
-import { UsersRepository } from "./repositories/users.repository";
+export type StoredUser = StoredUserRecord;
+export type PublicUser = Omit<StoredUser, "hashedPassword">;
 
-export type PublicUser = Omit<User, "hashedPassword">;
-
-function toPublicUser(user: User): PublicUser {
+function toPublicUser(user: StoredUser): PublicUser {
     const { hashedPassword: _hashedPassword, ...publicUser } = user;
     return publicUser;
 }
@@ -39,7 +38,7 @@ export class UsersService {
         return toPublicUser(user);
     }
 
-    toPublicUser(user: User) {
+    toPublicUser(user: StoredUser) {
         return toPublicUser(user);
     }
 }

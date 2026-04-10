@@ -1,8 +1,7 @@
-import type { User } from "@prisma/client";
 import bcrypt from "bcrypt";
 
 import { HttpError } from "../../shared/errors/http-error";
-import type { UsersService } from "../users/users.service";
+import type { StoredUser, UsersService } from "../users/users.service";
 import type { LoginDTO, RegisterDTO } from "./auth.schemas";
 
 export class AuthService {
@@ -52,7 +51,7 @@ export class AuthService {
         };
     }
 
-    getCurrentUser(user: User) {
+    getCurrentUser(user: StoredUser) {
         return this.usersService.toPublicUser(user);
     }
 }

@@ -1,19 +1,18 @@
-import type { User } from "@prisma/client";
-
 import { HttpError } from "../../shared/errors/http-error";
-import type { RealtimeService } from "../../plugins/realtime.plugin";
-import { ConversationsRepository } from "../conversations/repositories/conversations.repository";
+import type { RealtimePublisher } from "../../plugins/realtime.plugin";
+import type { ConversationsRepository } from "../conversations/repositories/conversations.repository";
 import type { SendMessageDTO } from "./messages.schemas";
-import { MessagesRepository } from "./repositories/messages.repository";
+import type { MessagesRepository } from "./repositories/messages.repository";
+import type { StoredUser } from "../users/users.service";
 
 export class MessagesService {
     constructor(
         private readonly messagesRepository: MessagesRepository,
         private readonly conversationsRepository: ConversationsRepository,
-        private readonly realtimeService: RealtimeService
+        private readonly realtimeService: RealtimePublisher
     ) {}
 
-    async create(currentUser: User, data: SendMessageDTO) {
+    async create(currentUser: StoredUser, data: SendMessageDTO) {
         const conversation = await this.conversationsRepository.findByIdForUser(
             data.conversationId,
             currentUser.id

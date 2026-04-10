@@ -1,15 +1,19 @@
 import type { FastifyInstance, FastifyPluginOptions } from "fastify";
 
-import { authenticateRequest } from "../../plugins/request-auth.plugin";
+import { authenticateRequest, getCurrentUser } from "../../plugins/request-auth.plugin";
 import { validateBody } from "../../shared/middlewares/validate-body";
 import { type PusherAuthDTO, pusherAuthSchema } from "./realtime.schemas";
 import type { PusherAuthService } from "./realtime.service";
+
+type PusherAuthRoute = {
+    Body: PusherAuthDTO;
+};
 
 export const realtimeRoutes = (pusherAuthService: PusherAuthService) => async (
     app: FastifyInstance,
     _opts: FastifyPluginOptions
 ) => {
-    app.post(
+    app.post<PusherAuthRoute>(
         "/pusher/auth",
         {
             preHandler: [
@@ -19,8 +23,8 @@ export const realtimeRoutes = (pusherAuthService: PusherAuthService) => async (
         },
         async (request) => {
             return pusherAuthService.authorize(
-                request.currentUser!.email,
-                request.body as PusherAuthDTO
+                getCurrentUser(request).email,
+                request.body
             );
         }
     );

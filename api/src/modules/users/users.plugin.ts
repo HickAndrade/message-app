@@ -1,11 +1,11 @@
 import fp from "fastify-plugin";
 
-import { UsersRepository } from "./repositories/users.repository";
+import { PrismaUsersRepository } from "./repositories/users.repository";
 import { usersRoutes } from "./users.routes";
 import { UsersService } from "./users.service";
 
 export default fp(async (app) => {
-    const repository = new UsersRepository(app.prisma);
+    const repository = new PrismaUsersRepository(app.prisma);
     const userService = new UsersService(repository);
 
     app.decorate("userService", userService);

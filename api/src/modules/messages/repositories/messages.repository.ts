@@ -1,13 +1,17 @@
 import type { PrismaClient } from "@prisma/client";
 
-interface CreateMessageInput {
+export interface CreateMessageInput {
     body?: string;
     conversationId: string;
     image?: string;
     senderId: string;
 }
 
-export class MessagesRepository {
+export interface MessagesRepository {
+    create(data: CreateMessageInput): Promise<CreatedMessageRecord>;
+}
+
+export class PrismaMessagesRepository implements MessagesRepository {
     constructor(private readonly prisma: PrismaClient) {}
 
     async create(data: CreateMessageInput) {
@@ -38,3 +42,5 @@ export class MessagesRepository {
         });
     }
 }
+
+export type CreatedMessageRecord = Awaited<ReturnType<PrismaMessagesRepository["create"]>>;

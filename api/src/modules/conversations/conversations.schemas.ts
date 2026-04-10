@@ -11,4 +11,9 @@ export const createConversationSchema = z.object({
     userId: z.string().trim().optional()
 });
 
+export const conversationParamsSchema = z.object({
+    conversationId: z.string().trim().min(1)
+});
+
 export type CreateConversationDTO = z.infer<typeof createConversationSchema>;
+export type ConversationParams = z.infer<typeof conversationParamsSchema>;
