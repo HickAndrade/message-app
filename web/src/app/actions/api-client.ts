@@ -1,67 +1,43 @@
-import getSession from "./getSession";
+import { headers } from "next/headers";
 
-const DEFAULT_API_URL = "http://localhost:4000";
+import { buildApiUrl } from "./api-url";
 
-function normalizeBaseUrl(baseUrl: string) {
-    return baseUrl.replace(/\/+$/, "");
-}
+async function buildHeaders(headersInit?: HeadersInit) {
+    const normalizedHeaders = new Headers(headersInit);
+    const requestHeaders = await headers();
+    const cookie = requestHeaders.get("cookie");
 
-function normalizePath(path: string) {
-    return path.startsWith("/") ? path : `/${path}`;
-}
-
-function buildHeaders(headers?: HeadersInit, userEmail?: string | null) {
-    const normalizedHeaders = new Headers(headers);
-
-    if (userEmail) {
-        normalizedHeaders.set("x-user-email", userEmail);
+    if (cookie && !normalizedHeaders.has("cookie")) {
+        normalizedHeaders.set("cookie", cookie);
     }
 
     return normalizedHeaders;
 }
 
-export function getApiBaseUrl() {
-    return normalizeBaseUrl(process.env.API_URL ?? DEFAULT_API_URL);
-}
+export async function apiFetch(path: string, init: RequestInit = {}) {
+    const requestHeaders = await buildHeaders(init.headers);
 
-export function buildApiUrl(path: string) {
-    return `${getApiBaseUrl()}${normalizePath(path)}`;
-}
-
-export async function getSessionEmail() {
-    const session = await getSession();
-
-    return session?.user?.email ?? null;
-}
-
-export async function apiFetch(path: string, init: RequestInit = {}, userEmail?: string | null) {
-    const headers = buildHeaders(init.headers, userEmail);
-
-    if (init.body && !headers.has("content-type")) {
-        headers.set("content-type", "application/json");
+    if (init.body && !requestHeaders.has("content-type")) {
+        requestHeaders.set("content-type", "application/json");
     }
 
     return fetch(buildApiUrl(path), {
         ...init,
         cache: "no-store",
-        headers
+        headers: requestHeaders
     });
 }
 
-export async function apiJson<T>(path: string, init: RequestInit = {}, userEmail?: string | null) {
+export async function apiJson<T>(path: string, init: RequestInit = {}) {
     try {
-        const response = await apiFetch(path, init, userEmail);
+        const response = await apiFetch(path, init);
 
-        if (!response.ok) {
-            return null;
-        }
-
-        if (response.status === 204) {
+        if (!response.ok || response.status === 204) {
             return null;
         }
 
         return (await response.json()) as T;
-    } catch (error) {
+    } catch (_error) {
         return null;
     }
 }

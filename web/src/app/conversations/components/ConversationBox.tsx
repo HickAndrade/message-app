@@ -6,11 +6,11 @@ import { useRouter } from "next/navigation";
 import { FullConversationType } from "@/app/types";
 
 import { format } from "date-fns";
-import { useSession } from "next-auth/react";
 import clsx from "clsx";
 import useOtherUser from "@/app/hooks/useOtherUser";
 import Avatar from "@/app/components/Avatar";
 import AvatarGroup from "@/app/components/AvatarGroup";
+import { useAuth } from "@/app/context/AuthContext";
 
 interface ConversationBoxProps {
     data: FullConversationType;
@@ -19,7 +19,7 @@ interface ConversationBoxProps {
 
 const ConversationBox = ({ data, selected }: ConversationBoxProps) => {
     const otherUser = useOtherUser(data);
-    const session = useSession();
+    const { currentUser } = useAuth();
     const router = useRouter();
     
     const handleClick = useCallback(() => {
@@ -33,8 +33,8 @@ const ConversationBox = ({ data, selected }: ConversationBoxProps) => {
     },[data.messages])
     
     const userEmail = useMemo(() => {
-        return session.data?.user?.email;
-    },[session.data?.user?.email])
+        return currentUser?.email;
+    },[currentUser?.email])
 
     const hasSeen = useMemo(() => {
         if(!lastMessage){

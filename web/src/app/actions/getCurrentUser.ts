@@ -1,20 +1,14 @@
 import { User } from "@prisma/client";
 
-import { apiJson, getSessionEmail } from "./api-client";
+import { apiJson } from "./api-client";
 
 const getCurrentUser = async(): Promise<User | null> => {
     try {
-        const email = await getSessionEmail();
-
-        if(!email){
-            return null;
-        }
-
-        return await apiJson<User>("/users/me", {
+        return await apiJson<User>("/auth/me", {
             method: "GET"
-        }, email);
+        });
 
-    } catch (error: any) {
+    } catch (_error: any) {
         return null;
     }
 }

@@ -1,4 +1,3 @@
-import { getSessionEmail } from "@/app/actions/api-client";
 import { proxyApiResponse } from "@/app/api/proxy-api";
 import { NextResponse } from "next/server";
 
@@ -8,16 +7,10 @@ export async function DELETE(
     ) {
     try {
         const { conversationId } = await params;
-        const email = await getSessionEmail();
-
-        if(!email){
-            return new NextResponse('Unauthorized', { status: 401 });
-
-        }
 
         return await proxyApiResponse(`/conversations/${conversationId}`, {
             method: "DELETE"
-        }, email)
+        })
 
     } catch (error: any) {
         console.log(error, 'ERROR_CONVERSATION_DELETE')

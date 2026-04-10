@@ -1,9 +1,9 @@
 "use client";
 
 import Avatar from "@/app/components/Avatar";
+import { useAuth } from "@/app/context/AuthContext";
 import { FullMessageType } from "@/app/types";
 import clsx from "clsx";
-import { useSession } from "next-auth/react";
 import { format } from 'date-fns';
 import Image from "next/image";
 import { useState } from "react";
@@ -16,10 +16,10 @@ interface MessageBoxProps {
 
 
 const MessageBox = ({ isLast, data }:MessageBoxProps) => {
-    const session = useSession();
+    const { currentUser } = useAuth();
     const[imageModalOpen, setImageModalOpen] = useState(false);
 
-    const isOwn = session?.data?.user?.email === data?.sender?.email;  
+    const isOwn = currentUser?.email === data?.sender?.email;  
     
     const seenList = (data.seen || [])
     .filter((user) => user.email !== data?.sender?.email)

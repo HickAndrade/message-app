@@ -1,12 +1,18 @@
 import getCurrentUser from "@/app/actions/getCurrentUser"
+import { redirect } from "next/navigation";
 import DesktopSidebar from "./DesktopSidebar"
 import MobileFooter from "./MobileFooter"
 
 async function Sidebar({ children }:{children: React.ReactNode}) {
   const currentUser = await getCurrentUser();
+
+  if (!currentUser) {
+    redirect("/");
+  }
+
   return (
     <div className='h-full'>
-      <DesktopSidebar currentUser={currentUser!}/>
+      <DesktopSidebar currentUser={currentUser}/>
       <MobileFooter />
       <main className="lg:pl-20 h-full">
         {children}

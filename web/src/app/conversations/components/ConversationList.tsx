@@ -11,9 +11,9 @@ import { MdOutlineGroupAdd } from "react-icons/md";
 import ConversationBox from "./ConversationBox";
 import GroupChatModal from "./GroupChatModal";
 import { User } from "@prisma/client";
-import { useSession } from "next-auth/react";
 import { getPusherClient } from "@/app/libs/pusher";
 import { find } from "lodash";
+import { useAuth } from "@/app/context/AuthContext";
 
 
 interface ConversationListProps{
@@ -22,7 +22,7 @@ interface ConversationListProps{
 }
 
 const ConversationList = ({ initialItems, users }: ConversationListProps) => {
-    const session = useSession();
+    const { currentUser } = useAuth();
     const [items, setItems] = useState(initialItems);
     const [isModalOpen, setIsModalOpen] = useState(false);
   
@@ -30,8 +30,8 @@ const ConversationList = ({ initialItems, users }: ConversationListProps) => {
     const { conversationId, isOpen } = useConversation();
     
     const pusherKey = useMemo(() => {
-       return session.data?.user?.email;
-    },[session.data?.user?.email])
+       return currentUser?.email;
+    },[currentUser?.email])
 
 
     useEffect(() => {

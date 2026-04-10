@@ -2,17 +2,14 @@ import { proxyApiResponse } from "@/app/api/proxy-api";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
-
     try {
         const body = await request.text();
 
-        return await proxyApiResponse("/conversations", {
+        return await proxyApiResponse("/auth/register", {
             method: "POST",
             body
         });
-
-    } catch (error: any) {
-        return new NextResponse('Internal Error', { status: 500 })
+    } catch (_error) {
+        return new NextResponse("Internal Error", { status: 500 });
     }
-
 }

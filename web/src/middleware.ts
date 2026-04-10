@@ -1,14 +1,22 @@
-import { withAuth } from "next-auth/middleware";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export default withAuth({
-  pages: {
-    signIn: "/",
-  },
-});
+const AUTH_COOKIE_NAME = process.env.AUTH_COOKIE_NAME ?? "message_app_token";
 
-export const config = { 
+export function middleware(request: NextRequest) {
+  const authCookie = request.cookies.get(AUTH_COOKIE_NAME);
+
+  if (!authCookie) {
+    const loginUrl = new URL("/", request.url);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
   matcher: [
     "/users/:path*",
-    "/conversations/:path"
+    "/conversations/:path*"
   ]
 };

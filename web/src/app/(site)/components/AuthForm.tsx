@@ -2,7 +2,7 @@
 
 import axios from "axios";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { useForm, FieldValues, SubmitHandler } from 'react-hook-form';
 import { BsGithub, BsGoogle } from 'react-icons/bs';
 
@@ -12,24 +12,17 @@ import Input from "@/app/components/inputs/Input";
 import { AuthSocialButton } from "./AuthSocialButton";
 import { toast } from 'react-hot-toast';
 
-import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from "@/app/context/AuthContext";
 
 type Variant = 'LOGIN'|'REGISTER'; /*Union Type */
 
 export default function AuthForm() {
-    const session = useSession();
     const router = useRouter();
+    const { setCurrentUser } = useAuth();
 
     const [variant, setVariant] = useState<Variant>('LOGIN');
     const [isLoading, setIsLoading] = useState(false);
-
-    useEffect(() => {
-        if (session?.status === 'authenticated') {
-            router.push('/users')
-        }
-
-    }, [session.status, router]);
 
 
     const toggleVariant = useCallback(() => {
@@ -50,45 +43,35 @@ export default function AuthForm() {
     
         if(variant ==='REGISTER'){
             
-            axios.post('/api/register', data)
-            .then(() => signIn('credentials', {...data}))
-            .catch(({ response }) => toast.error(`${response.data}`))
+            axios.post('/api/auth/register', data)
+            .then(({ data: user }) => {
+                setCurrentUser(user);
+                toast.success('Conta criada!');
+                router.push('/users');
+                router.refresh();
+            })
+            .catch(({ response }) => toast.error(response?.data?.message ?? 'Não foi possível criar a conta.'))
             .finally(() => setIsLoading(false))
             
             
         }
         if(variant === 'LOGIN'){
-           signIn('credentials', {
-            ...data, 
-            redirect: false 
-        })
-           .then((callback) => {
-             if(callback?.error){
-                toast.error('Invalid Credentials');
-               
-             } 
-             if(callback?.ok && !callback?.error){
+           axios.post('/api/auth/login', data)
+           .then(({ data: user }) => {
+                setCurrentUser(user);
                 toast.success('Logged in!');
                 router.push('/users');
-             }
-           }).finally(() => setIsLoading(false))
+                router.refresh();
+           })
+           .catch(({ response }) => {
+                toast.error(response?.data?.message ?? 'Invalid Credentials');
+           })
+           .finally(() => setIsLoading(false))
         }
     }
 
-    const socialAction = (action: string) => {
-        setIsLoading(true);
-
-        signIn(action,{ redirect: false })
-        .then((callback) => {
-            if(callback?.error) {
-                toast.error('Invalid Credentals');
-            }
-
-            if(callback?.ok && !callback?.error) {
-                toast.success('Logged in!');
-            }
-
-        }).finally(()=> setIsLoading(false));
+    const socialAction = (_action: string) => {
+        toast('Login social ficará para a próxima etapa.');
     }
 
   return (
