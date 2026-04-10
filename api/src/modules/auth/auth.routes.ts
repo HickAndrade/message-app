@@ -1,7 +1,8 @@
 import type { FastifyInstance, FastifyPluginOptions } from "fastify";
 
+import { authenticateRequest } from "../../plugins/request-auth.plugin";
 import { validateBody } from "../../shared/middlewares/validate-body";
-import { type RegisterDTO, registerSchema } from "./auth.schemas";
+import { type LoginDTO, loginSchema, type RegisterDTO, registerSchema } from "./auth.schemas";
 import type { AuthService } from "./auth.service";
 
 export const authRoutes = (authService: AuthService) => async (
@@ -9,13 +10,37 @@ export const authRoutes = (authService: AuthService) => async (
     _opts: FastifyPluginOptions
 ) => {
     app.post(
-        "/register",
+        "/auth/register",
         {
             preHandler: [validateBody(registerSchema)]
         },
         async (request, reply) => {
-            const user = await authService.register(request.body as RegisterDTO);
-            reply.code(201).send(user);
+            const { publicUser, user } = await authService.register(request.body as RegisterDTO);
+
+            await app.setAuthCookie(reply, user);
+            reply.code(201).send(publicUser);
         }
     );
+
+    app.post(
+        "/auth/login",
+        {
+            preHandler: [validateBody(loginSchema)]
+        },
+        async (request, reply) => {
+            const { publicUser, user } = await authService.login(request.body as LoginDTO);
+
+            await app.setAuthCookie(reply, user);
+            reply.send(publicUser);
+        }
+    );
+
+    app.get("/auth/me", { preHandler: [authenticateRequest] }, async (request) => {
+        return authService.getCurrentUser(request.currentUser!);
+    });
+
+    app.post("/auth/logout", async (_request, reply) => {
+        app.clearAuthCookie(reply);
+        reply.code(204).send();
+    });
 };

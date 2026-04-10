@@ -1,5 +1,14 @@
+import type { User } from "@prisma/client";
+
 import type { CreateUserInput, UpdateUserProfileInput } from "./repositories/users.repository";
 import { UsersRepository } from "./repositories/users.repository";
+
+export type PublicUser = Omit<User, "hashedPassword">;
+
+function toPublicUser(user: User): PublicUser {
+    const { hashedPassword: _hashedPassword, ...publicUser } = user;
+    return publicUser;
+}
 
 export class UsersService {
     constructor(private readonly repository: UsersRepository) {}
@@ -17,13 +26,20 @@ export class UsersService {
     }
 
     async listUsers(excludeEmail: string) {
-        return this.repository.listExceptEmail(excludeEmail);
+        const users = await this.repository.listExceptEmail(excludeEmail);
+        return users.map(toPublicUser);
     }
 
     async updateSettings(userId: string, data: UpdateUserProfileInput) {
-        return this.repository.updateProfile(userId, {
+        const user = await this.repository.updateProfile(userId, {
             image: data.image?.trim() || undefined,
             name: data.name?.trim() || undefined
         });
+
+        return toPublicUser(user);
+    }
+
+    toPublicUser(user: User) {
+        return toPublicUser(user);
     }
 }

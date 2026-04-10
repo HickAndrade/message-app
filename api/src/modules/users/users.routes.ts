@@ -10,7 +10,7 @@ export const usersRoutes = (usersService: UsersService) => async (
     _opts: FastifyPluginOptions
 ) => {
     app.get("/users/me", { preHandler: [authenticateRequest] }, async (request) => {
-        return request.currentUser;
+        return usersService.toPublicUser(request.currentUser!);
     });
 
     app.get("/users", { preHandler: [authenticateRequest] }, async (request) => {
