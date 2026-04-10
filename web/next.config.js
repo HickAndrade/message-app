@@ -1,10 +1,24 @@
+const path = require("path");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  turbopack: {
+    root: path.resolve(__dirname)
+  },
   images: {
-    domains: [
-        "lh3.googleusercontent.com",
-        "avatars.githubusercontent.com",
-        "res.cloudinary.com"
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com"
+      },
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com"
+      },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com"
+      }
     ]
   }
 }
