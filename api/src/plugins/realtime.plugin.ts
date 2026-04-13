@@ -8,7 +8,7 @@ export type RealtimeUser = {
     email: string | null;
 };
 
-export interface RealtimePublisher {
+export interface RealtimeTransport {
     trigger(channel: string, eventName: string, payload: unknown): Promise<unknown>;
     triggerToUsers(users: RealtimeUser[], eventName: string, payload: unknown): Promise<void>;
 }
@@ -21,7 +21,7 @@ export interface RealtimeAuthorizer {
     ): unknown;
 }
 
-export class RealtimeService implements RealtimePublisher, RealtimeAuthorizer {
+export class RealtimeService implements RealtimeTransport, RealtimeAuthorizer {
     private server: PusherServer | null = null;
 
     private getServer() {

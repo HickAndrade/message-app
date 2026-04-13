@@ -1,5 +1,5 @@
 import { HttpError } from "../../shared/errors/http-error";
-import type { RealtimePublisher } from "../../plugins/realtime.plugin";
+import type { ChatEventPublisher } from "../../plugins/chat-event-publisher.plugin";
 import type { ConversationsRepository } from "../conversations/repositories/conversations.repository";
 import type { SendMessageDTO } from "./messages.schemas";
 import type { MessagesRepository } from "./repositories/messages.repository";
@@ -9,7 +9,7 @@ export class MessagesService {
     constructor(
         private readonly messagesRepository: MessagesRepository,
         private readonly conversationsRepository: ConversationsRepository,
-        private readonly realtimeService: RealtimePublisher
+        private readonly eventPublisher: ChatEventPublisher
     ) {}
 
     async create(currentUser: StoredUser, data: SendMessageDTO) {
@@ -34,15 +34,18 @@ export class MessagesService {
             newMessage.id
         );
 
-        await this.realtimeService.trigger(data.conversationId, "messages:new", newMessage);
+        await this.eventPublisher.publishMessageCreated(data.conversationId, newMessage);
 
         const lastMessage = updatedConversation.messages[updatedConversation.messages.length - 1];
 
         if (lastMessage) {
-            await this.realtimeService.triggerToUsers(updatedConversation.users, "conversation:update", {
-                id: data.conversationId,
-                messages: [lastMessage]
-            });
+            await this.eventPublisher.publishConversationUpdated(
+                updatedConversation.users,
+                {
+                    id: data.conversationId,
+                    messages: [lastMessage]
+                }
+            );
         }
 
         return newMessage;

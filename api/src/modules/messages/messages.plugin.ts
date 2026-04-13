@@ -11,11 +11,11 @@ export default fp(async (app) => {
     const messagesService = new MessagesService(
         messagesRepository,
         conversationsRepository,
-        app.realtimeService
+        app.chatEventPublisher
     );
 
     await app.register(messagesRoutes(messagesService));
 }, {
     name: "messages-module",
-    dependencies: ["prisma-plugin", "realtime-plugin", "request-auth-plugin"]
+    dependencies: ["prisma-plugin", "chat-event-publisher-plugin", "request-auth-plugin"]
 });

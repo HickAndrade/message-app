@@ -6,10 +6,10 @@ import { PrismaConversationsRepository } from "./repositories/conversations.repo
 
 export default fp(async (app) => {
     const repository = new PrismaConversationsRepository(app.prisma);
-    const conversationsService = new ConversationsService(repository, app.realtimeService);
+    const conversationsService = new ConversationsService(repository, app.chatEventPublisher);
 
     await app.register(conversationsRoutes(conversationsService));
 }, {
     name: "conversations-module",
-    dependencies: ["prisma-plugin", "realtime-plugin", "request-auth-plugin"]
+    dependencies: ["prisma-plugin", "chat-event-publisher-plugin", "request-auth-plugin"]
 });

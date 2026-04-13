@@ -1,5 +1,5 @@
 import { HttpError } from "../../shared/errors/http-error";
-import type { RealtimePublisher } from "../../plugins/realtime.plugin";
+import type { ChatEventPublisher } from "../../plugins/chat-event-publisher.plugin";
 import type { CreateConversationDTO } from "./conversations.schemas";
 import type { ConversationsRepository } from "./repositories/conversations.repository";
 import type { StoredUser } from "../users/users.service";
@@ -7,7 +7,7 @@ import type { StoredUser } from "../users/users.service";
 export class ConversationsService {
     constructor(
         private readonly repository: ConversationsRepository,
-        private readonly realtimeService: RealtimePublisher
+        private readonly eventPublisher: ChatEventPublisher
     ) {}
 
     async listForUser(userId: string) {
@@ -41,7 +41,7 @@ export class ConversationsService {
             }
 
             const newConversation = await this.repository.createGroupConversation(name, currentUser.id, members);
-            await this.realtimeService.triggerToUsers(newConversation.users, "conversation:new", newConversation);
+            await this.eventPublisher.publishConversationCreated(newConversation);
             return newConversation;
         }
 
@@ -51,12 +51,13 @@ export class ConversationsService {
 
         const existingConversation = await this.repository.findDirectConversation(currentUser.id, userId);
 
+        console.log('existingConversation: ', existingConversation)
         if (existingConversation) {
             return existingConversation;
         }
 
         const newConversation = await this.repository.createDirectConversation(currentUser.id, userId);
-        await this.realtimeService.triggerToUsers(newConversation.users, "conversation:new", newConversation);
+        await this.eventPublisher.publishConversationCreated(newConversation);
 
         return newConversation;
     }
@@ -65,7 +66,7 @@ export class ConversationsService {
         const conversation = await this.getById(currentUser.id, conversationId);
         const deletedConversation = await this.repository.deleteForUser(conversationId, currentUser.id);
 
-        await this.realtimeService.triggerToUsers(conversation.users, "conversation:remove", conversation);
+        await this.eventPublisher.publishConversationRemoved(conversation);
 
         return deletedConversation;
     }
@@ -83,23 +84,28 @@ export class ConversationsService {
             return conversation;
         }
 
+        const buildConversationUpdatePayload = (message: unknown) => ({
+            id: conversationId,
+            messages: [message]
+        });
+
         if (lastMessage.seenIds.includes(currentUser.id)) {
-            await this.realtimeService.trigger(currentUser.email, "conversation:update", {
-                id: conversationId,
-                messages: [lastMessage]
-            });
+            await this.eventPublisher.publishConversationUpdated(
+                [currentUser],
+                buildConversationUpdatePayload(lastMessage)
+            );
 
             return conversation;
         }
 
         const updatedMessage = await this.repository.markMessageSeen(lastMessage.id, currentUser.id);
 
-        await this.realtimeService.trigger(currentUser.email, "conversation:update", {
-            id: conversationId,
-            messages: [updatedMessage]
-        });
+        await this.eventPublisher.publishConversationUpdated(
+            [currentUser],
+            buildConversationUpdatePayload(updatedMessage)
+        );
 
-        await this.realtimeService.trigger(conversationId, "message:update", updatedMessage);
+        await this.eventPublisher.publishMessageUpdated(conversationId, updatedMessage);
 
         return updatedMessage;
     }
