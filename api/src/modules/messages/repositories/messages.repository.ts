@@ -3,7 +3,6 @@ import { Prisma, type PrismaClient } from "@prisma/client";
 import type {
     AttachedConversationState,
     CreateMessageInput,
-    CreateMessageResult,
     CreatedMessageRecord,
     MessagesRepository
 } from "./types";
