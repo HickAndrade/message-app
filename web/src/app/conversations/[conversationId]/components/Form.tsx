@@ -7,7 +7,7 @@ import { HiPhoto } from "react-icons/hi2";
 import { MessageInput } from ".";
 import { HiPaperAirplane } from "react-icons/hi2";
 import { CldUploadButton } from "next-cloudinary";
-
+import { createClientMessageId } from "@/app/utils/createClientMessageId";
 
 const Form = () => {
     const { conversationId } = useConversation();
@@ -21,12 +21,15 @@ const Form = () => {
     const onSubmit: SubmitHandler<FieldValues> = (data) => {
         setValue('message', '', { shouldValidate: true });
         axios.post('/api/messages', {
-            ...data, conversationId
+            ...data,
+            clientMessageId: createClientMessageId(),
+            conversationId
         })
     };
 
     const handleUpload = (result:any) => {
     axios.post('/api/messages', {
+        clientMessageId: createClientMessageId(),
         image: result?.info?.secure_url, 
         conversationId
     })

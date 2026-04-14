@@ -1,15 +1,17 @@
 import { HttpError } from "../../shared/errors/http-error";
-import type { ChatEventPublisher } from "../../plugins/chat-event-publisher.plugin";
-import type { ConversationsRepository } from "../conversations/repositories/conversations.repository";
 import type { SendMessageDTO } from "./messages.schemas";
-import type { MessagesRepository } from "./repositories/messages.repository";
+import type {
+    MessagesConversationLookup,
+    MessagesEventPublisher
+} from "./messages.types";
+import type { MessagesRepository } from "./repositories/types";
 import type { StoredUser } from "../users/users.service";
 
 export class MessagesService {
     constructor(
         private readonly messagesRepository: MessagesRepository,
-        private readonly conversationsRepository: ConversationsRepository,
-        private readonly eventPublisher: ChatEventPublisher
+        private readonly conversationsRepository: MessagesConversationLookup,
+        private readonly eventPublisher: MessagesEventPublisher
     ) {}
 
     async create(currentUser: StoredUser, data: SendMessageDTO) {
@@ -22,25 +24,25 @@ export class MessagesService {
             throw new HttpError(404, "Conversation not found");
         }
 
-        const newMessage = await this.messagesRepository.create({
+        const result = await this.messagesRepository.create({
             body: data.message?.trim() || undefined,
+            clientMessageId: data.clientMessageId,
             conversationId: data.conversationId,
             image: data.image?.trim() || undefined,
             senderId: currentUser.id
         });
 
-        const updatedConversation = await this.conversationsRepository.attachMessage(
-            data.conversationId,
-            newMessage.id
-        );
+        if (!result.created || !result.conversation) {
+            return result.message;
+        }
 
-        await this.eventPublisher.publishMessageCreated(data.conversationId, newMessage);
+        await this.eventPublisher.publishMessageCreated(data.conversationId, result.message);
 
-        const lastMessage = updatedConversation.messages[updatedConversation.messages.length - 1];
+        const lastMessage = result.conversation.messages[result.conversation.messages.length - 1];
 
         if (lastMessage) {
             await this.eventPublisher.publishConversationUpdated(
-                updatedConversation.users,
+                result.conversation.users,
                 {
                     id: data.conversationId,
                     messages: [lastMessage]
@@ -48,6 +50,6 @@ export class MessagesService {
             );
         }
 
-        return newMessage;
+        return result.message;
     }
 }

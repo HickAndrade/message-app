@@ -63,6 +63,7 @@ model Conversation {
 model Message {
   id String @id @default(auto()) @map("_id") @db.ObjectId
   body String?
+  clientMessageId String
   image String?
   createdAt DateTime @default(now())
 
@@ -74,4 +75,6 @@ model Message {
 
   senderId String @db.ObjectId
   sender User @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, conversationId, clientMessageId], name: "message_delivery_key")
 }
