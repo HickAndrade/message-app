@@ -1,0 +1,90 @@
+import assert from "node:assert/strict";
+import { afterEach, beforeEach, describe, it } from "node:test";
+
+import MessagesIntegrationEnvironment from "./messages.environment";
+
+describe("POST /messages", () => {
+    let environment: MessagesIntegrationEnvironment;
+
+    beforeEach(async () => {
+        environment = new MessagesIntegrationEnvironment();
+        await environment.setup();
+    });
+
+    afterEach(async () => {
+        await environment.close();
+    });
+
+    it("creates a message once for the same clientMessageId", async () => {
+        const auth = await environment.registerAndAuthenticate({
+            email: "henrique@example.com",
+            name: "Henrique",
+            password: "123456"
+        });
+
+        assert.ok(auth.user);
+
+        environment.module.seedConversation("conversation-1", [auth.user.id]);
+
+        const payload = {
+            clientMessageId: "client-message-1",
+            conversationId: "conversation-1",
+            message: "hello"
+        };
+
+        const firstResponse = await environment.app.inject({
+            method: "POST",
+            url: "/messages",
+            cookies: {
+                [auth.cookieName]: auth.cookie
+            },
+            payload
+        });
+
+        const secondResponse = await environment.app.inject({
+            method: "POST",
+            url: "/messages",
+            cookies: {
+                [auth.cookieName]: auth.cookie
+            },
+            payload
+        });
+
+        assert.equal(firstResponse.statusCode, 200);
+        assert.equal(secondResponse.statusCode, 200);
+        assert.equal(firstResponse.json().id, secondResponse.json().id);
+        assert.equal(environment.module.messages.size, 1);
+        assert.equal(environment.publisher.calls.messageCreated.length, 1);
+        assert.equal(environment.publisher.calls.conversationUpdated.length, 1);
+    });
+
+    it("rejects sending a message to a conversation the current user does not belong to", async () => {
+        const auth = await environment.registerAndAuthenticate({
+            email: "henrique@example.com",
+            name: "Henrique",
+            password: "123456"
+        });
+
+        assert.ok(auth.user);
+
+        environment.module.seedConversation("conversation-1", ["user-999"]);
+
+        const response = await environment.app.inject({
+            method: "POST",
+            url: "/messages",
+            cookies: {
+                [auth.cookieName]: auth.cookie
+            },
+            payload: {
+                clientMessageId: "client-message-1",
+                conversationId: "conversation-1",
+                message: "hello"
+            }
+        });
+
+        assert.equal(response.statusCode, 404);
+        assert.deepEqual(response.json(), {
+            message: "Conversation not found"
+        });
+    });
+});

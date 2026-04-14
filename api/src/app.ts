@@ -5,7 +5,9 @@ import { isHttpError } from "./shared/errors/http-error";
 import authPlugin from "./modules/auth/auth.plugin";
 import conversationsPlugin from "./modules/conversations/conversations.plugin";
 import healthModule from "./modules/health/health.plugin";
-import messagesPlugin from "./modules/messages/messages.plugin";
+import messagesPlugin, {
+    type MessagesPluginOptions
+} from "./modules/messages/messages.plugin";
 import realtimeRoutesPlugin from "./modules/realtime/realtime.plugin";
 import usersPlugin from "./modules/users/users.plugin";
 import prismaPlugin from "./plugins/prisma.plugin";
@@ -17,9 +19,10 @@ import requestAuthPlugin from "./plugins/request-auth.plugin";
 import realtimePlugin from "./plugins/realtime.plugin";
 import supportPlugin from "./plugins/support.plugin";
 
-type BuildAppOptions = {
+export type BuildAppOptions = {
     chatEventPublisher?: ChatEventPublisher;
     logger?: boolean;
+    messagesModule?: MessagesPluginOptions;
     prisma?: PrismaClient;
     realtimeService?: RealtimeService;
 };
@@ -38,8 +41,13 @@ export function buildApp(options: BuildAppOptions = {}) {
     app.register(healthModule);
     app.register(authPlugin);
     app.register(conversationsPlugin);
-    app.register(messagesPlugin);
     app.register(realtimeRoutesPlugin);
+
+    if (options.messagesModule) {
+        app.register(messagesPlugin, options.messagesModule);
+    } else {
+        app.register(messagesPlugin);
+    }
 
     app.setErrorHandler((error, request, reply) => {
         if (isHttpError(error)) {

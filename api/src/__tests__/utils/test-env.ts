@@ -13,6 +13,8 @@ const TEST_ENV = {
     PUSHER_CLUSTER: "sa1"
 } as const;
 
+export const TEST_AUTH_COOKIE_NAME = TEST_ENV.AUTH_COOKIE_NAME;
+
 export function applyTestEnv(overrides: Partial<Record<keyof typeof TEST_ENV, string>> = {}) {
     Object.assign(process.env, TEST_ENV, overrides);
 }
