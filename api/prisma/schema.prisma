@@ -78,3 +78,19 @@ model Message {
 
   @@unique([senderId, conversationId, clientMessageId], name: "message_delivery_key")
 }
+
+model OutboxEvent {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  topic String
+  status String @default("pending")
+  payload Json
+  attempts Int @default(0)
+  availableAt DateTime @default(now())
+  processedAt DateTime?
+  lastError String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, availableAt])
+  @@index([topic, status])
+}

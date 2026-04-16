@@ -1,4 +1,4 @@
-import type { ChatEventPublisher } from "../../plugins/chat-event-publisher.plugin";
+import type { ChatEventPublisher } from "../outbox/chat/chat-event-publisher";
 import type { ConversationsRepository } from "../conversations/repositories/conversations.repository";
 
 export interface MessagesConversationLookup {

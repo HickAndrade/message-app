@@ -1,5 +1,5 @@
 import { HttpError } from "../../shared/errors/http-error";
-import type { ChatEventPublisher } from "../../plugins/chat-event-publisher.plugin";
+import type { ChatEventPublisher } from "../outbox/chat/chat-event-publisher";
 import type { CreateConversationDTO } from "./conversations.schemas";
 import type { ConversationsRepository } from "./repositories/conversations.repository";
 import type { StoredUser } from "../users/users.service";
@@ -50,8 +50,6 @@ export class ConversationsService {
         }
 
         const existingConversation = await this.repository.findDirectConversation(currentUser.id, userId);
-
-        console.log('existingConversation: ', existingConversation)
         if (existingConversation) {
             return existingConversation;
         }

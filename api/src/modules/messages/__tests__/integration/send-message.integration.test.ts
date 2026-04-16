@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { afterEach, beforeEach, describe, it } from "node:test";
 
+import { CHAT_OUTBOX_TOPICS } from "../../../outbox/chat/chat-events";
 import MessagesIntegrationEnvironment from "./messages.environment";
 
 describe("POST /messages", () => {
@@ -54,8 +55,11 @@ describe("POST /messages", () => {
         assert.equal(secondResponse.statusCode, 200);
         assert.equal(firstResponse.json().id, secondResponse.json().id);
         assert.equal(environment.module.messages.size, 1);
-        assert.equal(environment.publisher.calls.messageCreated.length, 1);
-        assert.equal(environment.publisher.calls.conversationUpdated.length, 1);
+        assert.equal(environment.outbox.events.length, 2);
+        assert.deepEqual(
+            environment.outbox.events.map((event) => event.topic),
+            [CHAT_OUTBOX_TOPICS.messageCreated, CHAT_OUTBOX_TOPICS.conversationUpdated]
+        );
     });
 
     it("rejects sending a message to a conversation the current user does not belong to", async () => {

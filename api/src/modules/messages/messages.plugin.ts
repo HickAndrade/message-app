@@ -20,7 +20,8 @@ export default fp<MessagesPluginOptions>(async (app, options) => {
     const messagesRepository = options.messagesRepository ?? new PrismaMessagesRepository(app.prisma);
     const conversationsRepository = options.conversationsRepository
         ?? new PrismaConversationsRepository(app.prisma);
-    const messagesService = new MessagesService(
+    
+        const messagesService = new MessagesService(
         messagesRepository,
         conversationsRepository,
         options.eventPublisher ?? app.chatEventPublisher
@@ -29,5 +30,5 @@ export default fp<MessagesPluginOptions>(async (app, options) => {
     await app.register(messagesRoutes(messagesService));
 }, {
     name: "messages-module",
-    dependencies: ["prisma-plugin", "chat-event-publisher-plugin", "request-auth-plugin"]
+    dependencies: ["prisma-plugin", "outbox-plugin", "request-auth-plugin"]
 });

@@ -3,47 +3,84 @@ import type { FastifyInstance } from "fastify";
 import { buildTestApp } from "../../../../__tests__/utils/build-test-app";
 import { TEST_AUTH_COOKIE_NAME } from "../../../../__tests__/utils/test-env";
 import { createPrismaMock } from "../../../../__tests__/utils/prisma-mock";
-import type { ChatEventPublisher } from "../../../../plugins/chat-event-publisher.plugin";
+import type {
+    OutboxEventRecord,
+    OutboxRepository
+} from "../../../outbox/repositories/outbox.repository.types";
+import { OUTBOX_STATUSES } from "../../../outbox/repositories/outbox.repository.types";
 import type {
     CreateMessageInput,
     CreatedMessageRecord,
     MessagesRepository
 } from "../../repositories/types";
-import type {
-    MessagesConversationLookup,
-    MessagesEventPublisher
-} from "../../messages.types";
+import type { MessagesConversationLookup } from "../../messages.types";
 
 const NOW = new Date("2026-01-01T00:00:00.000Z");
 
-function createMessagesEventPublisherSpy() {
-    const calls = {
-        conversationUpdated: [] as Array<{ payload: unknown; users: unknown[] }>,
-        messageCreated: [] as Array<{ conversationId: string; message: unknown }>
-    };
+function createOutboxRepositoryFake() {
+    const events: OutboxEventRecord[] = [];
 
-    const publisher: ChatEventPublisher = {
-        async publishConversationCreated() {
-            return undefined;
+    const repository: OutboxRepository = {
+        async enqueue(event) {
+            const record: OutboxEventRecord = {
+                attempts: 0,
+                availableAt: NOW,
+                createdAt: NOW,
+                id: `outbox-${events.length + 1}`,
+                lastError: null,
+                processedAt: null,
+                status: OUTBOX_STATUSES.pending,
+                updatedAt: NOW,
+                ...event
+            };
+
+            events.push(record);
+
+            return record;
         },
-        async publishConversationRemoved() {
-            return undefined;
+        async claimNext(now = new Date()) {
+            const event = events.find((entry) => entry.status === OUTBOX_STATUSES.pending && entry.availableAt <= now);
+
+            if (!event) {
+                return null;
+            }
+
+            event.attempts += 1;
+            event.lastError = null;
+            event.status = OUTBOX_STATUSES.processing;
+
+            return event;
         },
-        async publishConversationUpdated(users, payload) {
-            calls.conversationUpdated.push({ payload, users });
+        async markProcessed(id) {
+            const event = events.find((entry) => entry.id === id);
+
+            if (event) {
+                event.processedAt = NOW;
+                event.status = OUTBOX_STATUSES.processed;
+            }
         },
-        async publishMessageCreated(conversationId, message) {
-            calls.messageCreated.push({ conversationId, message });
+        async markRetry(id, errorMessage, availableAt) {
+            const event = events.find((entry) => entry.id === id);
+
+            if (event) {
+                event.availableAt = availableAt;
+                event.lastError = errorMessage;
+                event.status = OUTBOX_STATUSES.pending;
+            }
         },
-        async publishMessageUpdated() {
-            return undefined;
+        async markFailed(id, errorMessage) {
+            const event = events.find((entry) => entry.id === id);
+
+            if (event) {
+                event.lastError = errorMessage;
+                event.status = OUTBOX_STATUSES.failed;
+            }
         }
     };
 
     return {
-        calls,
-        eventPublisher: publisher as MessagesEventPublisher,
-        publisher
+        events,
+        repository
     };
 }
 
@@ -130,16 +167,17 @@ function createMessagesModuleFakes() {
 export default class MessagesIntegrationEnvironment {
     readonly authPrisma = createPrismaMock();
     readonly module = createMessagesModuleFakes();
-    readonly publisher = createMessagesEventPublisherSpy();
+    readonly outbox = createOutboxRepositoryFake();
     app!: FastifyInstance;
 
     async setup() {
         this.app = await buildTestApp({
-            chatEventPublisher: this.publisher.publisher,
             messagesModule: {
                 conversationsRepository: this.module.conversationsRepository,
-                eventPublisher: this.publisher.eventPublisher,
                 messagesRepository: this.module.messagesRepository
+            },
+            outboxModule: {
+                repository: this.outbox.repository
             },
             prisma: this.authPrisma.client
         });

@@ -11,5 +11,5 @@ export default fp(async (app) => {
     await app.register(conversationsRoutes(conversationsService));
 }, {
     name: "conversations-module",
-    dependencies: ["prisma-plugin", "chat-event-publisher-plugin", "request-auth-plugin"]
+    dependencies: ["prisma-plugin", "outbox-plugin", "request-auth-plugin"]
 });
