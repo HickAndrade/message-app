@@ -96,4 +96,51 @@ describe("POST /messages", () => {
             message: "Conversation not found"
         });
     });
+
+    it("rate limits repeated message writes for the same authenticated user", async () => {
+        const auth = await environment.registerAndAuthenticate({
+            email: "henrique@example.com",
+            name: "Henrique",
+            password: "123456"
+        });
+
+        assert.ok(auth.user);
+
+        environment.module.seedConversation("conversation-1", [auth.user.id]);
+
+        for (let index = 0; index < 20; index += 1) {
+            const response = await environment.app.inject({
+                method: "POST",
+                url: "/messages",
+                cookies: {
+                    [auth.cookieName]: auth.cookie
+                },
+                payload: {
+                    clientMessageId: `client-message-${index}`,
+                    conversationId: "conversation-1",
+                    message: "hello"
+                }
+            });
+
+            assert.equal(response.statusCode, 200);
+        }
+
+        const limitedResponse = await environment.app.inject({
+            method: "POST",
+            url: "/messages",
+            cookies: {
+                [auth.cookieName]: auth.cookie
+            },
+            payload: {
+                clientMessageId: "client-message-limit",
+                conversationId: "conversation-1",
+                message: "hello"
+            }
+        });
+
+        assert.equal(limitedResponse.statusCode, 429);
+        assert.deepEqual(limitedResponse.json(), {
+            message: "Too many requests"
+        });
+    });
 });

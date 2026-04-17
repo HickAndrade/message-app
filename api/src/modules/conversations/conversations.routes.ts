@@ -1,6 +1,10 @@
 import type { FastifyInstance, FastifyPluginOptions } from "fastify";
 
 import { authenticateRequest, getCurrentUser } from "../../plugins/request-auth.plugin";
+import {
+    createAuthenticatedUserRateLimit,
+    RATE_LIMIT_POLICIES
+} from "../../shared/middlewares/rate-limit";
 import { validateBody } from "../../shared/middlewares/validate-body";
 import { validateParams } from "../../shared/middlewares/validate-params";
 import {
@@ -23,6 +27,10 @@ export const conversationsRoutes = (conversationsService: ConversationsService) 
     app: FastifyInstance,
     _opts: FastifyPluginOptions
 ) => {
+    const createConversationRateLimit = createAuthenticatedUserRateLimit(
+        RATE_LIMIT_POLICIES.conversationsCreate
+    );
+
     app.get("/conversations", { preHandler: [authenticateRequest] }, async (request) => {
         return conversationsService.listForUser(getCurrentUser(request).id);
     });
@@ -58,6 +66,7 @@ export const conversationsRoutes = (conversationsService: ConversationsService) 
         {
             preHandler: [
                 authenticateRequest,
+                createConversationRateLimit,
                 validateBody(createConversationSchema)
             ]
         },

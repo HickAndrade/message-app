@@ -129,4 +129,37 @@ describe("Auth routes", () => {
             assert.equal(response.statusCode, 401);
         });
     });
+
+    it("rate limits repeated registration attempts from the same client", async () => {
+        await withApp(async ({ app }) => {
+            for (let index = 0; index < 5; index += 1) {
+                const response = await app.inject({
+                    method: "POST",
+                    url: "/auth/register",
+                    payload: {
+                        email: `henrique-${index}@example.com`,
+                        name: "Henrique",
+                        password: "123456"
+                    }
+                });
+
+                assert.equal(response.statusCode, 201);
+            }
+
+            const limitedResponse = await app.inject({
+                method: "POST",
+                url: "/auth/register",
+                payload: {
+                    email: "henrique-limit@example.com",
+                    name: "Henrique",
+                    password: "123456"
+                }
+            });
+
+            assert.equal(limitedResponse.statusCode, 429);
+            assert.deepEqual(limitedResponse.json(), {
+                message: "Too many requests"
+            });
+        });
+    });
 });
