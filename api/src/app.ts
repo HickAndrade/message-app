@@ -14,6 +14,7 @@ import outboxPlugin, {
 import realtimeRoutesPlugin from "./modules/realtime/realtime.plugin";
 import usersPlugin from "./modules/users/users.plugin";
 import prismaPlugin from "./plugins/prisma.plugin";
+import requestContextPlugin from "./plugins/request-context.plugin";
 import type { RealtimeService } from "./plugins/realtime.plugin";
 import requestAuthPlugin from "./plugins/request-auth.plugin";
 import realtimePlugin from "./plugins/realtime.plugin";
@@ -33,6 +34,7 @@ export function buildApp(options: BuildAppOptions = {}) {
     });
 
     app.register(supportPlugin);
+    app.register(requestContextPlugin);
     app.register(prismaPlugin, { client: options.prisma });
     app.register(realtimePlugin, { service: options.realtimeService });
     app.register(usersPlugin);

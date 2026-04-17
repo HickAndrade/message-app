@@ -1,4 +1,10 @@
-import type { OutboxRepository } from "../repositories/outbox.repository.types";
+import type { FastifyBaseLogger } from "fastify";
+
+import type { RequestContext } from "../../../plugins/request-context.plugin";
+import type {
+    ChatOutboxEvent,
+    OutboxRepository
+} from "../repositories/outbox.repository.types";
 import type {
     ConversationBroadcastPayload,
     ConversationUpdatePayload,
@@ -15,24 +21,43 @@ export interface ChatEventPublisher {
 }
 
 export class OutboxChatEventPublisher implements ChatEventPublisher {
-    constructor(private readonly outboxRepository: OutboxRepository) {}
+    constructor(
+        private readonly outboxRepository: OutboxRepository,
+        private readonly logger: Pick<FastifyBaseLogger, "info">,
+        private readonly getRequestContext: () => RequestContext | null
+    ) {}
+
+    private async enqueueWithRequestContext(event: ChatOutboxEvent) {
+        const requestContext = this.getRequestContext();
+        const record = await this.outboxRepository.enqueue({
+            ...event,
+            requestId: requestContext?.requestId ?? null
+        });
+
+        this.logger.info({
+            outboxEventId: record.id,
+            requestId: record.requestId,
+            status: record.status,
+            topic: record.topic
+        }, "Chat event enqueued in outbox");
+    }
 
     async publishConversationCreated(conversation: ConversationBroadcastPayload) {
-        await this.outboxRepository.enqueue({
+        await this.enqueueWithRequestContext({
             payload: conversation,
             topic: CHAT_OUTBOX_TOPICS.conversationCreated
         });
     }
 
     async publishConversationRemoved(conversation: ConversationBroadcastPayload) {
-        await this.outboxRepository.enqueue({
+        await this.enqueueWithRequestContext({
             payload: conversation,
             topic: CHAT_OUTBOX_TOPICS.conversationRemoved
         });
     }
 
     async publishConversationUpdated(users: EventRecipient[], payload: ConversationUpdatePayload) {
-        await this.outboxRepository.enqueue({
+        await this.enqueueWithRequestContext({
             payload: {
                 conversation: payload,
                 users
@@ -42,7 +67,7 @@ export class OutboxChatEventPublisher implements ChatEventPublisher {
     }
 
     async publishMessageCreated(conversationId: string, message: unknown) {
-        await this.outboxRepository.enqueue({
+        await this.enqueueWithRequestContext({
             payload: {
                 conversationId,
                 message
@@ -52,7 +77,7 @@ export class OutboxChatEventPublisher implements ChatEventPublisher {
     }
 
     async publishMessageUpdated(conversationId: string, message: unknown) {
-        await this.outboxRepository.enqueue({
+        await this.enqueueWithRequestContext({
             payload: {
                 conversationId,
                 message

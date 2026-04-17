@@ -60,6 +60,11 @@ describe("POST /messages", () => {
             environment.outbox.events.map((event) => event.topic),
             [CHAT_OUTBOX_TOPICS.messageCreated, CHAT_OUTBOX_TOPICS.conversationUpdated]
         );
+        const messageCreatedEvent = environment.outbox.events[0];
+        const conversationUpdatedEvent = environment.outbox.events[1];
+
+        assert.ok(messageCreatedEvent?.requestId);
+        assert.equal(messageCreatedEvent?.requestId, conversationUpdatedEvent?.requestId);
     });
 
     it("rejects sending a message to a conversation the current user does not belong to", async () => {

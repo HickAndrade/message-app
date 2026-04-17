@@ -44,6 +44,7 @@ function createOutboxRepositoryFake() {
                 id: `outbox-${events.length + 1}`,
                 lastError: null,
                 processedAt: null,
+                requestId: event.requestId ?? null,
                 status: OUTBOX_STATUSES.pending,
                 updatedAt: NOW,
                 ...event

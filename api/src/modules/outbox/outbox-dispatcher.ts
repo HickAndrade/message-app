@@ -1,3 +1,5 @@
+import type { FastifyBaseLogger } from "fastify";
+
 import { CHAT_OUTBOX_TOPICS } from "./chat/chat-events";
 import type { ChatEventPublisher } from "./chat/chat-event-publisher";
 import type {
@@ -9,22 +11,33 @@ import type {
 const DEFAULT_RETRY_DELAY_MS = 5_000;
 const DEFAULT_MAX_ATTEMPTS = 3;
 
+type OutboxDispatcherOptions = {
+    maxAttempts?: number;
+    retryDelayMs?: number;
+};
+
 function toErrorMessage(error: unknown) {
     return error instanceof Error ? error.message : "Unknown outbox dispatch error";
 }
 
 export class OutboxDispatcher {
+    private readonly logger: Pick<FastifyBaseLogger, "error" | "info" | "warn">;
+    private readonly maxAttempts: number;
+    private readonly retryDelayMs: number;
+
     constructor(
         private readonly outboxRepository: OutboxRepository,
         private readonly deliveryPublisher: ChatEventPublisher,
-        private readonly options: {
-            maxAttempts: number;
-            retryDelayMs: number;
-        } = {
-            maxAttempts: DEFAULT_MAX_ATTEMPTS,
-            retryDelayMs: DEFAULT_RETRY_DELAY_MS
-        }
-    ) {}
+        logger: Pick<FastifyBaseLogger, "error" | "info" | "warn">,
+        {
+            maxAttempts = DEFAULT_MAX_ATTEMPTS,
+            retryDelayMs = DEFAULT_RETRY_DELAY_MS
+        }: OutboxDispatcherOptions = {}
+    ) {
+        this.logger = logger;
+        this.maxAttempts = maxAttempts;
+        this.retryDelayMs = retryDelayMs;
+    }
 
     private async deliver(event: ChatOutboxEvent) {
         switch (event.topic) {
@@ -66,11 +79,35 @@ export class OutboxDispatcher {
             return false;
         }
 
+        this.logger.info({
+            attempts: event.attempts,
+            outboxEventId: event.id,
+            requestId: event.requestId,
+            topic: event.topic
+        }, "Dispatching outbox event");
+
         try {
             await this.deliver(event);
             await this.outboxRepository.markProcessed(event.id);
+            this.logger.info({
+                outboxEventId: event.id,
+                requestId: event.requestId,
+                topic: event.topic
+            }, "Outbox event processed");
         } catch (error) {
-            await this.handleFailure(event, error, now);
+            try {
+                await this.handleFailure(event, error, now);
+            } catch (failureHandlingError) {
+                this.logger.error({
+                    attempts: event.attempts,
+                    cause: error,
+                    err: failureHandlingError,
+                    outboxEventId: event.id,
+                    requestId: event.requestId,
+                    topic: event.topic
+                }, "Outbox event failure handling crashed");
+                throw failureHandlingError;
+            }
         }
 
         return true;
@@ -79,15 +116,33 @@ export class OutboxDispatcher {
     private async handleFailure(event: OutboxEventRecord, error: unknown, now: Date) {
         const errorMessage = toErrorMessage(error);
 
-        if (event.attempts >= this.options.maxAttempts) {
+        if (event.attempts >= this.maxAttempts) {
             await this.outboxRepository.markFailed(event.id, errorMessage);
+            this.logger.error({
+                attempts: event.attempts,
+                err: error,
+                outboxEventId: event.id,
+                requestId: event.requestId,
+                topic: event.topic
+            }, "Outbox event delivery failed permanently");
             return;
         }
+
+        const nextAttemptAt = new Date(now.getTime() + this.retryDelayMs);
 
         await this.outboxRepository.markRetry(
             event.id,
             errorMessage,
-            new Date(now.getTime() + this.options.retryDelayMs)
+            nextAttemptAt
         );
+
+        this.logger.warn({
+            attempts: event.attempts,
+            err: error,
+            nextAttemptAt,
+            outboxEventId: event.id,
+            requestId: event.requestId,
+            topic: event.topic
+        }, "Outbox event delivery failed and was scheduled for retry");
     }
 }

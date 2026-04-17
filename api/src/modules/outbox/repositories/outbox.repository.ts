@@ -1,25 +1,13 @@
-import { Prisma, type PrismaClient } from "@prisma/client";
+import { Prisma, type OutboxEvent as PrismaOutboxEventRecord, type PrismaClient } from "@prisma/client";
 
 import type {
     ChatOutboxEvent,
+    EnqueueOutboxEvent,
     OutboxEventRecord,
     OutboxStatus,
     OutboxRepository
 } from "./outbox.repository.types";
 import { OUTBOX_STATUSES } from "./outbox.repository.types";
-
-type StoredOutboxRecord = {
-    attempts: number;
-    availableAt: Date;
-    createdAt: Date;
-    id: string;
-    lastError: string | null;
-    payload: Prisma.JsonValue;
-    processedAt: Date | null;
-    status: string;
-    topic: string;
-    updatedAt: Date;
-};
 
 function toOutboxStatus(status: string): OutboxStatus {
     switch (status) {
@@ -36,7 +24,7 @@ function toOutboxStatus(status: string): OutboxStatus {
 export class PrismaOutboxRepository implements OutboxRepository {
     constructor(private readonly prisma: PrismaClient) {}
 
-    private toRecord(record: StoredOutboxRecord): OutboxEventRecord {
+    private toRecord(record: PrismaOutboxEventRecord): OutboxEventRecord {
         return {
             attempts: record.attempts,
             availableAt: record.availableAt,
@@ -45,16 +33,18 @@ export class PrismaOutboxRepository implements OutboxRepository {
             lastError: record.lastError,
             payload: record.payload as ChatOutboxEvent["payload"],
             processedAt: record.processedAt,
+            requestId: record.requestId,
             status: toOutboxStatus(record.status),
             topic: record.topic as ChatOutboxEvent["topic"],
             updatedAt: record.updatedAt
         } as OutboxEventRecord;
     }
 
-    async enqueue(event: ChatOutboxEvent) {
+    async enqueue(event: EnqueueOutboxEvent) {
         const record = await this.prisma.outboxEvent.create({
             data: {
                 payload: event.payload as Prisma.InputJsonValue,
+                requestId: event.requestId ?? null,
                 topic: event.topic
             }
         });

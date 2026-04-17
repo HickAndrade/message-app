@@ -55,6 +55,10 @@ export type ChatOutboxEvent =
     | MessageCreatedOutboxEvent
     | MessageUpdatedOutboxEvent;
 
+export type EnqueueOutboxEvent = ChatOutboxEvent & {
+    requestId?: string | null;
+};
+
 export type OutboxEventRecord = ChatOutboxEvent & {
     attempts: number;
     availableAt: Date;
@@ -62,12 +66,13 @@ export type OutboxEventRecord = ChatOutboxEvent & {
     id: string;
     lastError: string | null;
     processedAt: Date | null;
+    requestId: string | null;
     status: OutboxStatus;
     updatedAt: Date;
 };
 
 export interface OutboxRepository {
-    enqueue(event: ChatOutboxEvent): Promise<OutboxEventRecord>;
+    enqueue(event: EnqueueOutboxEvent): Promise<OutboxEventRecord>;
     claimNext(now?: Date): Promise<OutboxEventRecord | null>;
     markFailed(id: string, errorMessage: string): Promise<void>;
     markProcessed(id: string): Promise<void>;
