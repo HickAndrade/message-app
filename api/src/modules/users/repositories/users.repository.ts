@@ -1,4 +1,4 @@
-import type { PrismaClient } from "@prisma/client";
+import type { PrismaClient, User as PrismaUserRecord } from "@prisma/client";
 
 import type { CreateUserInput, UpdateUserProfileInput } from "../users.types";
 
@@ -58,4 +58,4 @@ export class PrismaUsersRepository implements UsersRepository {
     }
 }
 
-export type StoredUserRecord = NonNullable<Awaited<ReturnType<PrismaUsersRepository["findById"]>>>;
+export type StoredUserRecord = PrismaUserRecord;

@@ -5,6 +5,7 @@ import fp from "fastify-plugin";
 
 import { env } from "../config/env";
 import type { StoredUser } from "../modules/users/users.service";
+import { HttpError } from "../shared/errors/http-error";
 
 type AuthTokenPayload = {
     email: string;
@@ -51,7 +52,7 @@ export async function authenticateRequest(request: FastifyRequest, reply: Fastif
 
 export function getCurrentUser(request: FastifyRequest) {
     if (!request.currentUser) {
-        throw new Error("Authenticated request missing currentUser");
+        throw new HttpError(401, "Unauthorized");
     }
 
     return request.currentUser;

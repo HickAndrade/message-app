@@ -1,3 +1,4 @@
+import type { CreatedMessageRecord } from "../../messages/repositories/types";
 import type {
     ConversationBroadcastPayload,
     ConversationUpdatePayload,
@@ -35,7 +36,7 @@ export type ConversationUpdatedOutboxEvent = {
 export type MessageCreatedOutboxEvent = {
     payload: {
         conversationId: string;
-        message: unknown;
+        message: CreatedMessageRecord;
     };
     topic: typeof CHAT_OUTBOX_TOPICS.messageCreated;
 };
@@ -43,7 +44,7 @@ export type MessageCreatedOutboxEvent = {
 export type MessageUpdatedOutboxEvent = {
     payload: {
         conversationId: string;
-        message: unknown;
+        message: CreatedMessageRecord;
     };
     topic: typeof CHAT_OUTBOX_TOPICS.messageUpdated;
 };

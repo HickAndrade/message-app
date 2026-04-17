@@ -15,8 +15,14 @@ export type CreatedMessageRecord = Prisma.MessageGetPayload<{
     };
 }>;
 
+export type ConversationMessageRecord = Prisma.MessageGetPayload<{
+    include: {
+        seen: true;
+    };
+}>;
+
 export type AttachedConversationState = {
-    messages: unknown[];
+    messages: ConversationMessageRecord[];
     users: Array<{
         email: string | null;
     }>;

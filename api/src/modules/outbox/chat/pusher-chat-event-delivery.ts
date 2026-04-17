@@ -1,4 +1,5 @@
 import type { RealtimeTransport } from "../../../plugins/realtime.plugin";
+import type { CreatedMessageRecord } from "../../messages/repositories/types";
 import { CHAT_REALTIME_EVENTS } from "./chat-events";
 import type { ChatEventPublisher } from "./chat-event-publisher";
 import type {
@@ -34,7 +35,7 @@ export class PusherChatEventDelivery implements ChatEventPublisher {
         );
     }
 
-    async publishMessageCreated(conversationId: string, message: unknown) {
+    async publishMessageCreated(conversationId: string, message: CreatedMessageRecord) {
         await this.realtimeTransport.trigger(
             conversationId,
             CHAT_REALTIME_EVENTS.messageNew,
@@ -42,7 +43,7 @@ export class PusherChatEventDelivery implements ChatEventPublisher {
         );
     }
 
-    async publishMessageUpdated(conversationId: string, message: unknown) {
+    async publishMessageUpdated(conversationId: string, message: CreatedMessageRecord) {
         await this.realtimeTransport.trigger(
             conversationId,
             CHAT_REALTIME_EVENTS.messageUpdate,

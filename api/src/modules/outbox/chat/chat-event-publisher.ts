@@ -1,6 +1,7 @@
 import type { FastifyBaseLogger } from "fastify";
 
 import type { RequestContext } from "../../../plugins/request-context.plugin";
+import type { CreatedMessageRecord } from "../../messages/repositories/types";
 import type {
     ChatOutboxEvent,
     OutboxRepository
@@ -16,8 +17,8 @@ export interface ChatEventPublisher {
     publishConversationCreated(conversation: ConversationBroadcastPayload): Promise<void>;
     publishConversationRemoved(conversation: ConversationBroadcastPayload): Promise<void>;
     publishConversationUpdated(users: EventRecipient[], payload: ConversationUpdatePayload): Promise<void>;
-    publishMessageCreated(conversationId: string, message: unknown): Promise<void>;
-    publishMessageUpdated(conversationId: string, message: unknown): Promise<void>;
+    publishMessageCreated(conversationId: string, message: CreatedMessageRecord): Promise<void>;
+    publishMessageUpdated(conversationId: string, message: CreatedMessageRecord): Promise<void>;
 }
 
 export class OutboxChatEventPublisher implements ChatEventPublisher {
@@ -66,7 +67,7 @@ export class OutboxChatEventPublisher implements ChatEventPublisher {
         });
     }
 
-    async publishMessageCreated(conversationId: string, message: unknown) {
+    async publishMessageCreated(conversationId: string, message: CreatedMessageRecord) {
         await this.enqueueWithRequestContext({
             payload: {
                 conversationId,
@@ -76,7 +77,7 @@ export class OutboxChatEventPublisher implements ChatEventPublisher {
         });
     }
 
-    async publishMessageUpdated(conversationId: string, message: unknown) {
+    async publishMessageUpdated(conversationId: string, message: CreatedMessageRecord) {
         await this.enqueueWithRequestContext({
             payload: {
                 conversationId,
