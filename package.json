@@ -12,7 +12,9 @@
     "start:api": "npm run start --prefix api",
     "test:web": "npm run test --prefix web",
     "test:api": "npm run test --prefix api",
-    "typecheck:api": "npm run typecheck --prefix api"
+    "typecheck:api": "npm run typecheck --prefix api",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down -v"
   },
   "devDependencies": {
     "concurrently": "^9.2.0"
