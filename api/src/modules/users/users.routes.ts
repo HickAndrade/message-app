@@ -22,7 +22,7 @@ export const usersRoutes = (usersService: UsersService) => async (
     });
 
     app.post<UpdateSettingsRoute>(
-        "/settings",
+        "/users/settings",
         {
             preHandler: [
                 authenticateRequest,
