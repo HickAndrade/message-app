@@ -28,6 +28,10 @@ export default fp<PrismaPluginOptions>(async (app, options) => {
     const prisma = options.client ?? getDefaultPrismaClient();
     const shouldDisconnect = !options.client;
 
+    if (typeof prisma.$connect === "function") {
+        await prisma.$connect();
+    }
+
     app.decorate("prisma", prisma);
 
     app.addHook("onClose", async () => {

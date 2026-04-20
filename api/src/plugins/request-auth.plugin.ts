@@ -17,7 +17,7 @@ const COOKIE_BASE_OPTIONS = {
     httpOnly: true,
     path: "/",
     sameSite: "lax" as const,
-    secure: env.NODE_ENV === "production"
+    secure: env.AUTH_COOKIE_SECURE ?? env.NODE_ENV === "production"
 };
 
 function buildTokenPayload(user: StoredUser): AuthTokenPayload {

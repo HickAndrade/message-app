@@ -51,6 +51,14 @@ export function createPrismaMock() {
         },
         async $disconnect() {
             return undefined;
+        },
+        async $connect() {
+            return undefined;
+        },
+        async $runCommandRaw() {
+            return {
+                ok: 1
+            };
         }
     } as unknown as PrismaClient;
 

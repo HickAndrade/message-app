@@ -9,7 +9,17 @@ function normalizePath(path: string) {
 }
 
 export function getApiBaseUrl() {
-    return normalizeBaseUrl(process.env.API_URL ?? DEFAULT_API_URL);
+    const apiUrl = process.env.API_URL;
+
+    if (!apiUrl) {
+        if (process.env.NODE_ENV === "production") {
+            throw new Error("API_URL is required in production");
+        }
+
+        return normalizeBaseUrl(DEFAULT_API_URL);
+    }
+
+    return normalizeBaseUrl(apiUrl);
 }
 
 export function buildApiUrl(path: string) {
