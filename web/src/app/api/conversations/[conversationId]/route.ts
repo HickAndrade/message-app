@@ -2,7 +2,7 @@ import { proxyApiResponse } from "@/app/api/proxy-api";
 import { NextResponse } from "next/server";
 
 export async function DELETE(
-    _request: Request, 
+    request: Request, 
     { params }: { params: Promise<{ conversationId: string }> }
     ) {
     try {
@@ -10,7 +10,7 @@ export async function DELETE(
 
         return await proxyApiResponse(`/conversations/${conversationId}`, {
             method: "DELETE"
-        })
+        }, request)
 
     } catch (error: any) {
         console.log(error, 'ERROR_CONVERSATION_DELETE')

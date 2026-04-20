@@ -10,7 +10,7 @@ export async function POST(request: Request) {
             method: "POST",
             body,
             headers: contentType ? { "content-type": contentType } : undefined
-        });
+        }, request);
     } catch (_error) {
         return new NextResponse("Internal Error", { status: 500 });
     }

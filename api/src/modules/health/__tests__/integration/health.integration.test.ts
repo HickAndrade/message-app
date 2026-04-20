@@ -28,6 +28,8 @@ describe("GET /health", () => {
             assert.equal(body.status, "ok");
             assert.equal(body.service, "message-api");
             assert.ok(body.timestamp);
+            assert.equal(response.headers["x-content-type-options"], "nosniff");
+            assert.equal(response.headers["x-frame-options"], "SAMEORIGIN");
         });
     });
 });

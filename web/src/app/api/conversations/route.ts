@@ -9,7 +9,7 @@ export async function POST(request: Request) {
         return await proxyApiResponse("/conversations", {
             method: "POST",
             body
-        });
+        }, request);
 
     } catch (error: any) {
         return new NextResponse('Internal Error', { status: 500 })

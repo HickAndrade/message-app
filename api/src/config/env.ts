@@ -52,4 +52,13 @@ if (!parsedEnv.success) {
     throw new Error(`Invalid environment configuration:\n${details}`);
 }
 
+if (
+    parsedEnv.data.NODE_ENV === "production" &&
+    parsedEnv.data.CORS_ORIGIN.length === 0
+) {
+    throw new Error(
+        "Invalid environment configuration:\nCORS_ORIGIN: at least one origin is required in production"
+    );
+}
+
 export const env = parsedEnv.data;

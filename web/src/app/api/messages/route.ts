@@ -8,7 +8,7 @@ export async function POST(request: Request){
         return await proxyApiResponse("/messages", {
             method: "POST",
             body
-        });
+        }, request);
 
     } catch (error:any) {
         console.log(error, 'ERROR_MESSAGES');

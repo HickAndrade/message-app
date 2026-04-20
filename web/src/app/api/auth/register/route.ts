@@ -8,7 +8,7 @@ export async function POST(request: Request) {
         return await proxyApiResponse("/auth/register", {
             method: "POST",
             body
-        });
+        }, request);
     } catch (_error) {
         return new NextResponse("Internal Error", { status: 500 });
     }
