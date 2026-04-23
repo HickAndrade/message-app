@@ -14,7 +14,7 @@
     "test:api": "npm run test --prefix api",
     "typecheck:api": "npm run typecheck --prefix api",
     "docker:up": "docker compose up --build",
-    "docker:down": "docker compose down -v"
+    "docker:down": "docker compose down"
   },
   "devDependencies": {
     "concurrently": "^9.2.0"
