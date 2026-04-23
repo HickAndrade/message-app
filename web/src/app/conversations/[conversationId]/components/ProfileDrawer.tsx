@@ -3,7 +3,7 @@
 import Avatar from "@/app/components/Avatar";
 import useOtherUser from "@/app/hooks/useOtherUser";
 import { Dialog, Transition } from "@headlessui/react";
-import { Conversation, User } from "@prisma/client";
+import type { FullConversationType } from "@/app/types";
 import { format } from "date-fns";
 import { useMemo, Fragment, useState } from "react";
 import { IoClose, IoTrash } from "react-icons/io5";
@@ -16,9 +16,7 @@ interface ProfileDrawerProps {
   
   isOpen: boolean;
   onClose: () => void;
-  data: Conversation & {
-    users: User[]
-  }
+  data: FullConversationType;
 }
 
 const ProfileDrawer = ({

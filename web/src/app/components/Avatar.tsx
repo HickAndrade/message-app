@@ -1,6 +1,6 @@
 "use client";
 
-import { User } from "@prisma/client"
+import type { User } from "@/app/types";
 import Image from "next/image"
 import useActiveList from "../hooks/useActiveList";
 

@@ -2,7 +2,7 @@
 
 import Avatar from "@/app/components/Avatar";
 import useOtherUser from "@/app/hooks/useOtherUser";
-import { Conversation, User } from "@prisma/client"
+import type { FullConversationType } from "@/app/types";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { HiChevronLeft, HiEllipsisHorizontal } from "react-icons/hi2";
@@ -11,9 +11,7 @@ import AvatarGroup from "@/app/components/AvatarGroup";
 import useActiveList from "@/app/hooks/useActiveList";
 
 interface HeaderProps {
-    conversation: Conversation & {
-        users: User[]
-    }
+    conversation: FullConversationType;
 }
 
 const Header = ({ conversation }: HeaderProps) => {

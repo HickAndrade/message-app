@@ -3,14 +3,13 @@
 import clsx from "clsx";
 
 import useConversation from "@/app/hooks/useConversation";
-import { FullConversationType } from "@/app/types";
+import type { FullConversationType, User } from "@/app/types";
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { MdOutlineGroupAdd } from "react-icons/md";
 import ConversationBox from "./ConversationBox";
 import GroupChatModal from "./GroupChatModal";
-import { User } from "@prisma/client";
 import { getPusherClient } from "@/app/libs/pusher";
 import { find } from "lodash";
 import { useAuth } from "@/app/context/AuthContext";
