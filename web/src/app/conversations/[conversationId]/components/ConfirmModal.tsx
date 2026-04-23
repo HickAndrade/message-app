@@ -4,11 +4,11 @@ import Button from "@/app/components/Button";
 import Modal from "@/app/components/Modal";
 import useConversation from "@/app/hooks/useConversation";
 import { Dialog } from "@headlessui/react";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { toast } from "react-hot-toast";
 import { FiAlertTriangle } from "react-icons/fi";
+import { browserApi } from "@/app/services/api/browser";
 
 interface ConfirmModalProps {
     isOpen?:boolean;
@@ -23,7 +23,7 @@ const ConfirmModal = ({ onClose, isOpen }:ConfirmModalProps) => {
     const onDelete = useCallback(() => {
         setIsLoading(true);
 
-        axios.delete(`/api/conversations/${conversationId}`)
+        browserApi.delete(`/conversations/${conversationId}`)
         .then(() => {
             onClose();
             router.push('/conversations')

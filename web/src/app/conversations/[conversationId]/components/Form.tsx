@@ -1,13 +1,13 @@
 "use client";
 
 import useConversation from "@/app/hooks/useConversation";
-import axios from "axios";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { HiPhoto } from "react-icons/hi2";
 import { MessageInput } from ".";
 import { HiPaperAirplane } from "react-icons/hi2";
 import { CldUploadButton } from "next-cloudinary";
 import { createClientMessageId } from "@/app/utils/createClientMessageId";
+import { browserApi } from "@/app/services/api/browser";
 
 const Form = () => {
     const { conversationId } = useConversation();
@@ -20,7 +20,7 @@ const Form = () => {
 
     const onSubmit: SubmitHandler<FieldValues> = (data) => {
         setValue('message', '', { shouldValidate: true });
-        axios.post('/api/messages', {
+        browserApi.post('/messages', {
             ...data,
             clientMessageId: createClientMessageId(),
             conversationId
@@ -28,7 +28,7 @@ const Form = () => {
     };
 
     const handleUpload = (result:any) => {
-    axios.post('/api/messages', {
+    browserApi.post('/messages', {
         clientMessageId: createClientMessageId(),
         image: result?.info?.secure_url, 
         conversationId

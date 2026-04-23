@@ -1,7 +1,5 @@
 'use client';
 
-import axios from "axios";
-
 import { useState, useCallback } from "react";
 import { useForm, FieldValues, SubmitHandler } from 'react-hook-form';
 import { BsGithub, BsGoogle } from 'react-icons/bs';
@@ -14,6 +12,7 @@ import { toast } from 'react-hot-toast';
 
 import { useRouter } from 'next/navigation';
 import { useAuth } from "@/app/context/AuthContext";
+import { browserApi } from "@/app/services/api/browser";
 
 type Variant = 'LOGIN'|'REGISTER'; /*Union Type */
 
@@ -43,7 +42,7 @@ export default function AuthForm() {
     
         if(variant ==='REGISTER'){
             
-            axios.post('/api/auth/register', data)
+            browserApi.post('/auth/register', data)
             .then(({ data: user }) => {
                 setCurrentUser(user);
                 toast.success('Conta criada!');
@@ -56,7 +55,7 @@ export default function AuthForm() {
             
         }
         if(variant === 'LOGIN'){
-           axios.post('/api/auth/login', data)
+           browserApi.post('/auth/login', data)
            .then(({ data: user }) => {
                 setCurrentUser(user);
                 toast.success('Logged in!');

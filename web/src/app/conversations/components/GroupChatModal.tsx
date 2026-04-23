@@ -4,12 +4,12 @@ import Button from "@/app/components/Button";
 import Modal from "@/app/components/Modal";
 import Input from "@/app/components/inputs/Input";
 import Select from "@/app/components/inputs/Select";
-import { User } from "@prisma/client";
-import axios from "axios";
+import type { User } from "@/app/types";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
+import { browserApi } from "@/app/services/api/browser";
 
 interface GroupChatModalProps {
     isOpen?: boolean;
@@ -39,7 +39,7 @@ const GroupChatModal = ({ isOpen, onClose, users }:GroupChatModalProps) => {
     const onSubmit: SubmitHandler<FieldValues> =(data: any) =>{
         setIsLoading(true);
         
-        axios.post(`/api/conversations`, {
+        browserApi.post(`/conversations`, {
             ...data, isGroup: true
         })
         .then(() => {

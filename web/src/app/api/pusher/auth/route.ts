@@ -1,16 +1,21 @@
-import { proxyApiResponse } from "@/app/api/proxy-api";
+import { apiFetch } from "@/app/services/api/server";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
     try {
         const body = await request.text();
         const contentType = request.headers.get("content-type");
-
-        return await proxyApiResponse("/pusher/auth", {
+        const response = await apiFetch("/pusher/auth", {
             method: "POST",
             body,
             headers: contentType ? { "content-type": contentType } : undefined
-        }, request);
+        });
+
+        return new NextResponse(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: response.headers
+        });
     } catch (_error) {
         return new NextResponse("Internal Error", { status: 500 });
     }

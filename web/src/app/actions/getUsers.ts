@@ -1,6 +1,6 @@
 import type { User } from "@/app/types";
 
-import { apiJson } from "./api-client";
+import { apiJson } from "../services/api/server";
 
 const getUsers = async (): Promise<User[]> => {
     try {

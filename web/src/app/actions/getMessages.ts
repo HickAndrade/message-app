@@ -1,6 +1,6 @@
 import { FullMessageType } from "@/app/types";
 
-import { apiJson } from "./api-client";
+import { apiJson } from "../services/api/server";
 
 const getMessages = async(conversationId: string): Promise<FullMessageType[]> =>{
     try {

@@ -1,7 +1,7 @@
 import getConversationById from "../getConversationsById";
-import { apiJson } from "../api-client";
+import { apiJson } from "../../services/api/server";
 
-jest.mock("../api-client", () => ({
+jest.mock("../../services/api/server", () => ({
     __esModule: true,
     apiJson: jest.fn()
 }));

@@ -1,11 +1,11 @@
 "use client";
 
-import { User } from "@prisma/client";
+import type { User } from "@/app/types";
 import { useRouter } from "next/navigation";
 import { useState, useCallback } from "react";
-import axios from "axios";
 import Avatar from "@/app/components/Avatar";
 import LoadingModal from "@/app/components/loadingModal";
+import { browserApi } from "@/app/services/api/browser";
 
 interface UserBoxProps {
     data: User;
@@ -20,7 +20,7 @@ const UserBox = ({ data }: UserBoxProps) => {
         setIsLoading(true);
 
 
-        axios.post('/api/conversations', {
+        browserApi.post('/conversations', {
             userId: data.id
         })
         .then((data) => { router.push(`/conversations/${data.data.id}`) 

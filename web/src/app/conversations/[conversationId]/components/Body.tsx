@@ -4,9 +4,9 @@ import useConversation from "@/app/hooks/useConversation";
 import { FullMessageType } from "@/app/types";
 import { useState,useRef, useEffect } from "react";
 import MessageBox from "./MessageBox";
-import axios from "axios";
 import { getPusherClient } from "@/app/libs/pusher";
 import { find } from "lodash";
+import { browserApi } from "@/app/services/api/browser";
 
 interface BodyProps {
   initialMessages: FullMessageType[];
@@ -30,7 +30,7 @@ const Body = ({ initialMessages }: BodyProps) => {
         }
         return [...current, message]
       })
-      axios.post(`/api/conversations/${conversationId}/seen`);
+      browserApi.post(`/conversations/${conversationId}/seen`);
     }
     
     bottomRef?.current?.scrollIntoView();
@@ -57,7 +57,7 @@ const Body = ({ initialMessages }: BodyProps) => {
   }, [conversationId]);
 
   useEffect(() => {
-    axios.post(`/api/conversations/${conversationId}/seen`)
+    browserApi.post(`/conversations/${conversationId}/seen`)
   },[conversationId])
 
 

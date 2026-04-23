@@ -1,6 +1,6 @@
 import { FullConversationType } from "@/app/types";
 
-import { apiJson } from "./api-client";
+import { apiJson } from "../services/api/server";
 
 const getConversationById = async(conversationId: string): Promise<FullConversationType | null> => {
     try {

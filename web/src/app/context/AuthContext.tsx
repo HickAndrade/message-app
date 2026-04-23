@@ -1,9 +1,9 @@
 "use client";
 
-import type { User } from "@prisma/client";
-import axios from "axios";
+import type { User } from "@/app/types";
 import { createContext, useContext, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { browserApi } from "@/app/services/api/browser";
 
 type AuthStatus = "authenticated" | "unauthenticated";
 
@@ -33,7 +33,7 @@ export default function AuthProvider({
     status: currentUser ? "authenticated" : "unauthenticated",
     setCurrentUser,
     logout: async () => {
-      await axios.post("/api/auth/logout");
+      await browserApi.post("/auth/logout");
       setCurrentUser(null);
       router.push("/");
       router.refresh();

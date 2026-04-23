@@ -1,16 +1,17 @@
 "use client";
 
-import { User } from "@prisma/client";
-import axios from "axios";
+import type { User } from "@/app/types";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
+import clsx from "clsx";
 import Modal from "../Modal";
 import Input from "../inputs/Input";
 import Image from "next/image";
 import { CldUploadButton } from "next-cloudinary";
 import Button from "../Button";
+import { browserApi } from "@/app/services/api/browser";
 
 interface SettingsModalProps {
     currentUser: User;
@@ -35,11 +36,24 @@ const SettingsModal = ({
     } = useForm<FieldValues>({
         defaultValues:{
             name: currentUser?.name,
-            image: currentUser?.image
+            image: currentUser?.image ?? undefined
         }
     })
 
     const image = watch('image');
+    const uploadButtonClassName = clsx(`
+        flex
+        justify-center
+        rounded-md
+        px-3
+        py-2
+        text-sm
+        font-semibold
+        focus-visible:outline
+        focus-visible:outline-2
+        focus-visible:outline-2-offset-2
+        text-gray-900
+    `, isLoading && "opacity-50 cursor-default");
     
     const handleUpload = (result: any) => {
         setValue('image', result?.info?.secure_url, {
@@ -49,8 +63,12 @@ const SettingsModal = ({
 
     const onSubmit: SubmitHandler<FieldValues> = (data) => {
         setIsLoading(true);
+        const payload = {
+            ...(typeof data.name === "string" ? { name: data.name } : {}),
+            ...(typeof data.image === "string" ? { image: data.image } : {})
+        };
 
-        axios.post(`/api/settings`, data)
+        browserApi.post(`/users/settings`, payload)
         .then(() => {
             router.refresh();
             onClose();
@@ -106,18 +124,19 @@ const SettingsModal = ({
                                 src={image ||currentUser?.image || '/images/placeholder.jpg' } 
                                 alt="Avatar"
                                 />
-                                <CldUploadButton 
-                                options={{ maxFiles: 1 }}
-                                onUpload={handleUpload}
-                                uploadPreset="nwtj5uuk">
-                                    <Button
-                                    disabled={isLoading}
-                                    secondary
-                                    type="button"
-                                    >
+                                {isLoading ? (
+                                    <span className={uploadButtonClassName}>
                                         Mudar foto
-                                    </Button>
-                                </CldUploadButton>
+                                    </span>
+                                ) : (
+                                    <CldUploadButton 
+                                    options={{ maxFiles: 1 }}
+                                    onUpload={handleUpload}
+                                    uploadPreset="nwtj5uuk"
+                                    className={uploadButtonClassName}>
+                                        Mudar foto
+                                    </CldUploadButton>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -129,7 +148,7 @@ const SettingsModal = ({
             justify-end
             gap-x-6
             ">
-                <Button disabled={isLoading} secondary onClick={onClose}>
+                <Button disabled={isLoading} secondary type="button" onClick={onClose}>
                     Cancelar
                 </Button>
                 <Button disabled={isLoading} secondary type="submit">

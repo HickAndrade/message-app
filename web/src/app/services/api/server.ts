@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 
-import { buildApiUrl } from "./api-url";
+import { buildApiUrl } from "./url";
 
 async function buildHeaders(headersInit?: HeadersInit) {
     const normalizedHeaders = new Headers(headersInit);
