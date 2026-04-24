@@ -8,9 +8,11 @@ import { HiPaperAirplane } from "react-icons/hi2";
 import { CldUploadButton } from "next-cloudinary";
 import { createClientMessageId } from "@/app/utils/createClientMessageId";
 import { browserApi } from "@/app/services/api/browser";
+import { useRouter } from "next/navigation";
 
 const Form = () => {
     const { conversationId } = useConversation();
+    const router = useRouter();
 
     const { handleSubmit, register, setValue, formState: { errors } } = useForm<FieldValues>({ 
         defaultValues: {
@@ -24,6 +26,8 @@ const Form = () => {
             ...data,
             clientMessageId: createClientMessageId(),
             conversationId
+        }).then(() => {
+            router.refresh();
         })
     };
 
@@ -32,6 +36,8 @@ const Form = () => {
         clientMessageId: createClientMessageId(),
         image: result?.info?.secure_url, 
         conversationId
+    }).then(() => {
+            router.refresh();
     })
     }
 

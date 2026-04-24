@@ -19,6 +19,10 @@ const Body = ({ initialMessages }: BodyProps) => {
   const { conversationId } = useConversation();
 
   useEffect(() => {
+    setMessages(initialMessages);
+  }, [initialMessages]);
+
+  useEffect(() => {
     const pusherClient = getPusherClient();
     const channel = pusherClient.subscribe(conversationId);
     bottomRef?.current?.scrollIntoView();
