@@ -1,10 +1,10 @@
 "use client";
 
 import Avatar from "@/app/components/Avatar";
+import ClientFormattedDate from "@/app/components/ClientFormattedDate";
 import { useAuth } from "@/app/context/AuthContext";
 import { FullMessageType } from "@/app/types";
 import clsx from "clsx";
-import { format } from 'date-fns';
 import Image from "next/image";
 import { useState } from "react";
 import ImageModal from "./ImageModal";
@@ -28,7 +28,7 @@ const MessageBox = ({ isLast, data }:MessageBoxProps) => {
 
     const container = clsx(`flex gap-3 p-4`, isOwn && `justify-end`)
 
-    const avatar =  clsx(isOwn && `order-2`);
+    const avatar =  clsx(isOwn && `order-2 self-center`);
     
     const body = clsx(`flex flex-col gap-2`, isOwn && `items-end`);
 
@@ -45,12 +45,8 @@ const MessageBox = ({ isLast, data }:MessageBoxProps) => {
         </div>
         <div className={body}>
             <div className="flex items-center gap-1">
-                <div className="text-sm text-gray-500">
-                    {data.sender.name}
-                </div>
-
                 <div className="text-xs text-gray-400">
-                    {format(new Date(data.createdAt), 'p')}
+                    <ClientFormattedDate value={data.createdAt} pattern="p" />
                 </div>
             </div>
             <div className={message}>

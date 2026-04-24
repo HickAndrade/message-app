@@ -3,9 +3,9 @@
 import { useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 
+import ClientFormattedDate from "@/app/components/ClientFormattedDate";
 import { FullConversationType } from "@/app/types";
 
-import { format } from "date-fns";
 import clsx from "clsx";
 import useOtherUser from "@/app/hooks/useOtherUser";
 import Avatar from "@/app/components/Avatar";
@@ -103,7 +103,12 @@ const ConversationBox = ({ data, selected }: ConversationBoxProps) => {
                         text-gray-400
                         font-light
                         "
-                        >{format(new Date(lastMessage.createdAt), 'p')}</p>
+                        >
+                            <ClientFormattedDate
+                                value={lastMessage.createdAt}
+                                pattern="p"
+                            />
+                        </p>
                     )}
                     </div>
                     <p className={clsx(`

@@ -1,10 +1,10 @@
 "use client";
 
 import Avatar from "@/app/components/Avatar";
+import ClientFormattedDate from "@/app/components/ClientFormattedDate";
 import useOtherUser from "@/app/hooks/useOtherUser";
 import { Dialog, Transition } from "@headlessui/react";
 import type { FullConversationType } from "@/app/types";
-import { format } from "date-fns";
 import { useMemo, Fragment, useState } from "react";
 import { IoClose, IoTrash } from "react-icons/io5";
 import ConfirmModal from "./ConfirmModal";
@@ -26,10 +26,6 @@ const ProfileDrawer = ({
   const [confirmOpen, setConfirmOpen] = useState(false);
   const { members } = useActiveList();
   const isActive = members.indexOf(otherUser?.email!) !== -1;
-
-  const joinedDate = useMemo(() => {
-    return format(new Date(otherUser.createdAt), 'PP');
-  },[otherUser.createdAt]) 
 
   const title = useMemo(() => {
     return data.name || otherUser.name; 
@@ -259,9 +255,10 @@ const ProfileDrawer = ({
                             text-gray-900
                             sm:col-span-2
                             ">
-                              <time dateTime={joinedDate}>
-                              {joinedDate}
-                              </time>
+                              <ClientFormattedDate
+                                value={otherUser.createdAt}
+                                pattern="PP"
+                              />
                             </dd>
                           </div>
                           </>
