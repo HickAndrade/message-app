@@ -130,8 +130,12 @@ const SettingsModal = ({
                                     </span>
                                 ) : (
                                     <CldUploadButton 
-                                    options={{ maxFiles: 1 }}
-                                    onUpload={handleUpload}
+                                    options={{
+                                        maxFiles: 1,
+                                        multiple: false,
+                                        singleUploadAutoClose: false
+                                    }}
+                                    onSuccess={handleUpload}
                                     uploadPreset="nwtj5uuk"
                                     className={uploadButtonClassName}>
                                         Mudar foto
