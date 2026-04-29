@@ -51,7 +51,6 @@ O Pusher ainda existe, mas seu papel agora é mais restrito:
 
 ### 1. Enviar uma mensagem e receber uma atualização em tempo real
 
-`[Espaço reservado para GIF: docs/assets/send-message-realtime.gif]`
 <img width="800" height="450" alt="send-message-realtime" src="https://github.com/user-attachments/assets/45f9f542-04c3-4e69-8ac2-c17b30be13cd" />
 
 Nos bastidores:
