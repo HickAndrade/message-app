@@ -58,12 +58,12 @@ export default function AuthForm() {
            browserApi.post('/auth/login', data)
            .then(({ data: user }) => {
                 setCurrentUser(user);
-                toast.success('Logged in!');
+                toast.success('Login realizado!');
                 router.push('/users');
                 router.refresh();
            })
            .catch(({ response }) => {
-                toast.error(response?.data?.message ?? 'Invalid Credentials');
+                toast.error(response?.data?.message ?? 'Credenciais inválidas.');
            })
            .finally(() => setIsLoading(false))
         }
@@ -85,14 +85,14 @@ export default function AuthForm() {
         ">
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             {variant === 'REGISTER' && (
-                <Input id="name" label="Name" register={register} errors={errors} disabled={isLoading} /> 
+                <Input id="name" label="Nome" register={register} errors={errors} disabled={isLoading} /> 
             )}
-             <Input id="email" label="Email Address" type="email" register={register} errors={errors} disabled={isLoading} />
-             <Input id="password" label="Password" type="password" register={register} errors={errors} disabled={isLoading}/>
+             <Input id="email" label="E-mail" type="email" register={register} errors={errors} disabled={isLoading} />
+             <Input id="password" label="Senha" type="password" register={register} errors={errors} disabled={isLoading}/>
             
             <div>
                 <Button disabled={isLoading} fullWidth type="submit">
-                    {variant === 'LOGIN' ? 'Sign in' : 'Register'}
+                    {variant === 'LOGIN' ? 'Entrar' : 'Criar conta'}
                 </Button>
             </div>
         </form>
@@ -104,7 +104,7 @@ export default function AuthForm() {
                     </div>
                     <div className="relative flex justify-center text-sm">
                         <span className="bg-white px-2 text-gray-500">
-                            Or Continue with
+                            Ou continue com
                         </span>
                     </div>
                 </div>
@@ -115,10 +115,10 @@ export default function AuthForm() {
         </div>
         <div className="flex gap-2 justify-center text-sm mt-6 px-2 text-gray-500">
             <div>
-                {variant === 'LOGIN' ? 'New to Messanger?' : 'Already have an Account'}
+                {variant === 'LOGIN' ? 'Novo no Message App?' : 'Já tem uma conta?'}
             </div>
             <div onClick={toggleVariant} className="underline cursor-pointer">
-                {variant === 'LOGIN' ? 'Create an Account' : 'Login'}
+                {variant === 'LOGIN' ? 'Criar conta' : 'Entrar'}
             </div>
         </div>
         </div>
